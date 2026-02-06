@@ -1,3 +1,1 @@
-HACKCMU 2025 - amy, veer, uma, charisse
-
-Trove - A one stop shop for financial advice and analytics!
+TARTANHACK 26 - Amy, Uma, Veer, Charisse
