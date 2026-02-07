@@ -20,7 +20,7 @@ import certifi
 from requests.exceptions import SSLError
 from requests.auth import HTTPBasicAuth
 import asyncio
-from dedalus_labs import AsyncDedalus, DedalusRunner
+from dedalus_labs import Dedalus, AsyncDedalus, DedalusRunner
 from django.views.decorators.csrf import csrf_exempt
 
 # configure Dedalus
@@ -442,7 +442,7 @@ from django.db import connection
 from django.views.decorators.csrf import csrf_exempt
 import sqlite3
 import asyncio
-from dedalus_labs import AsyncDedalus, DedalusRunner
+from dedalus_labs import Dedalus, AsyncDedalus, DedalusRunner
 import markdown2
 from django.conf import settings
 import os
@@ -566,7 +566,7 @@ def spending_dashboard(request):
                 runner = DedalusRunner(client)
                 response = await runner.run(
                     input=prompt,
-                    model="anthropic/claude-sonnet-4-5-20250929",
+                    model="anthropic/claude-sonnet-4-5",
                 )
                 return response.final_output
 
@@ -851,7 +851,7 @@ def agent_dashboard(request):
             data = json.loads(request.body)
             user_message = data.get('message', '').strip()
             conversation_history = data.get('history', [])
-            model = data.get('model', 'anthropic/claude-sonnet-4-5-20250929')
+            model = data.get('model', 'anthropic/claude-sonnet-4-5')
             feature = data.get('feature', 'general')
 
             if not user_message:
@@ -927,7 +927,7 @@ Use tables, bullet points, and clear numerical comparisons. Always show your cal
                     # Top merchants
                     cur.execute("""
                         SELECT
-                            merchant,
+                            COALESCE(merchant_name, name, 'Unknown') as merchant,
                             COUNT(*) as tx_count,
                             ROUND(SUM(amount), 2) as total,
                             ROUND(AVG(amount), 2) as avg_amount
@@ -1043,39 +1043,39 @@ Top Spending Categories:"""
             if cards.exists():
                 financial_context += f"\n\nCREDIT CARDS: {cards.count()} cards in wallet"
 
-            # Build message history for Dedalus
-            messages = [{"role": "system", "content": system_prompt}]
+            # Build prompt with context and conversation history
+            prompt_parts = [system_prompt, "", financial_context, ""]
 
-            # Add conversation history (keep last 10 messages for context)
             for msg in conversation_history[-10:]:
-                if msg.get('role') in ['user', 'assistant']:
-                    messages.append({
-                        "role": msg['role'],
-                        "content": msg['content']
-                    })
+                if msg.get('role') == 'user':
+                    prompt_parts.append(f"User: {msg['content']}")
+                elif msg.get('role') == 'assistant':
+                    prompt_parts.append(f"Assistant: {msg['content']}")
 
-            # Add current message with financial context
-            messages.append({
-                "role": "user",
-                "content": f"{financial_context}\n\nUser Question: {user_message}"
-            })
+            prompt_parts.append(f"User: {user_message}")
+            full_prompt = "\n".join(prompt_parts)
 
-            # Use Dedalus to generate response
+            # Use DedalusRunner (sync) as documented at docs.dedaluslabs.ai/sdk/chat
             try:
-                async def get_ai_response():
-                    dedalus = AsyncDedalus()
-                    response = await dedalus.chat(
-                        messages=messages,
-                        model=model
-                    )
-                    return response
+                # Read API key directly from .env to bypass any env var corruption
+                from dotenv import dotenv_values
+                env_vals = dotenv_values(Path(settings.BASE_DIR) / ".env")
+                api_key = env_vals.get("DEDALUS_API_KEY", "")
+                print(f"[AGENT DEBUG] key from .env: {api_key[:20]}...")
+                print(f"[AGENT DEBUG] key from settings: {(settings.DEDALUS_API_KEY or '')[:20]}...")
+                print(f"[AGENT DEBUG] key from os.environ: {os.environ.get('DEDALUS_API_KEY', '')[:20]}...")
 
-                # Run async function
-                response = asyncio.run(get_ai_response())
+                client = Dedalus(api_key=api_key)
+                runner = DedalusRunner(client)
+                response = runner.run(
+                    input=full_prompt,
+                    model=model,
+                )
 
-                return JsonResponse({'response': response})
+                return JsonResponse({'response': response.final_output})
 
             except Exception as e:
+                import traceback; traceback.print_exc()
                 return JsonResponse({'error': f'AI service error: {str(e)}'}, status=500)
 
         except json.JSONDecodeError:
