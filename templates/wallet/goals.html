@@ -533,6 +533,7 @@
     const sorted = sortRows(withCards, key, dir);
     renderTable(sorted);
     computeStats(sorted);
+    renderRecurringTransactions(withCards); // Use mapped data for recurring analysis
   }
 
   // Toggle Add Goal form
