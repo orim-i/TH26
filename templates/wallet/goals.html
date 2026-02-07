@@ -169,6 +169,9 @@
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-xl font-semibold">Recent Transactions</h2>
       <div class="flex items-center" style="gap:.5rem">
+        <button id="txToggleBtn" type="button"
+                class="px-3 py-2 rounded-xl border border-slate-200 shadow-md"
+                style="background:#ffffff">Show All</button>
         <label class="text-xs opacity-70">Sort by</label>
         <select id="sortKey" style="padding:.35rem .6rem;border:1px solid rgba(15,23,42,.12);border-radius:12px;background:#fff">
           <option value="date" selected>Date</option>
@@ -259,6 +262,48 @@
     color: #850f0f;         /* red-600 on hover */
 }
 
+  .tx-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  .tx-modal-backdrop.open { display: flex; }
+  .tx-modal {
+    width: min(640px, 92vw);
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    transform: scale(.96);
+    opacity: 0;
+    transition: transform .18s ease, opacity .18s ease;
+  }
+  .tx-modal-backdrop.open .tx-modal {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .tx-modal-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    padding: 18px 20px 10px 20px;
+    border-bottom: 1px solid rgba(15,23,42,.08);
+  }
+  .tx-modal-body {
+    padding: 16px 20px 22px 20px;
+  }
+  .tx-modal-kv {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px 12px;
+    font-size: 0.95rem;
+  }
+  .tx-modal-kv .label { color: rgba(15,23,42,.6); }
+  .tx-row { cursor: pointer; }
+  .tx-row:hover { background: rgba(15,23,42,.03); }
 </style>
 
 <script>
@@ -274,11 +319,18 @@
   const serverTx = [
     {% for t in transactions %}
       {
+        tx_id: "{{ t.transaction_id|escapejs }}",
         merchant: "{{ t.merchant|escapejs }}",
         category: "{{ t.category|escapejs }}",
         date: "{{ t.date|escapejs }}",
         amount: parseFloat("{{ t.amount|default_if_none:0 }}") || 0
       }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  const cardNames = [
+    {% for c in card_names %}
+      "{{ c|escapejs }}"{% if not forloop.last %},{% endif %}
     {% endfor %}
   ];
 
@@ -313,6 +365,8 @@
   const alerts = document.getElementById('alerts');
   const sortKeyEl = document.getElementById('sortKey');
   const sortDirEl = document.getElementById('sortDir');
+  const txToggleBtn = document.getElementById('txToggleBtn');
+  let txExpanded = false;
 
   // Animate progress changes
   fill.style.transition = 'width .6s ease, background-color .3s ease';
@@ -397,14 +451,26 @@
       tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center opacity-70">No transactions found</td></tr>';
       return;
     }
-    tbody.innerHTML = rows.map(t => `
-      <tr>
+    const visibleRows = txExpanded ? rows : rows.slice(0, 5);
+    tbody.innerHTML = visibleRows.map(t => `
+      <tr class="tx-row" data-tx="1"
+          data-merchant="${(t.merchant || '').replace(/"/g,'&quot;')}"
+          data-category="${(t.category || '').replace(/"/g,'&quot;')}"
+          data-date="${(t.date || '').replace(/"/g,'&quot;')}"
+          data-amount="${t.amount}"
+          data-card="${(t.card || '—').replace(/"/g,'&quot;')}">
         <td class="p-3 font-medium">${t.merchant}</td>
         <td class="p-3 opacity-80">${t.category || ''}</td>
         <td class="p-3 opacity-70">${t.date}</td>
         <td class="p-3 text-right font-semibold">$${fmt(t.amount)}</td>
       </tr>
     `).join('');
+
+    if (txToggleBtn) {
+      const hasMore = rows.length > 5;
+      txToggleBtn.style.display = hasMore ? 'inline-flex' : 'none';
+      txToggleBtn.textContent = txExpanded ? 'Show Less' : 'Show All';
+    }
   }
 
   // Identify and render recurring transactions
@@ -472,13 +538,30 @@
     return arr;
   }
 
+  function hashString(s){
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h) + s.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h);
+  }
+
+  function pickCardForTx(t){
+    if (!cardNames.length) return '—';
+    const key = t.tx_id || `${t.merchant}|${t.date}|${t.amount}`;
+    const idx = hashString(String(key)) % cardNames.length;
+    return cardNames[idx] || '—';
+  }
+
   function apply(){
     const key = sortKeyEl.value || 'date';
     const dir = sortDirEl.value || 'desc';
-    const sorted = sortRows(serverTx, key, dir);
+    const withCards = serverTx.map(t => ({ ...t, card: pickCardForTx(t) }));
+    const sorted = sortRows(withCards, key, dir);
     renderTable(sorted);
     computeStats(sorted);
-    renderRecurringTransactions(serverTx); // Use unsorted data for recurring analysis
+    renderRecurringTransactions(withCards); // Use mapped data for recurring analysis
   }
 
   // Toggle Add Goal form
@@ -490,11 +573,93 @@
 
   sortKeyEl.addEventListener('change', apply);
   sortDirEl.addEventListener('change', apply);
+  if (txToggleBtn) {
+    txToggleBtn.addEventListener('click', () => {
+      txExpanded = !txExpanded;
+      apply();
+    });
+  }
 
   // Initial render
   apply();
+
+  // Transaction detail modal (lazy lookup so it works even if markup appears after script)
+  let txBackdrop = null;
+  let txMerchant = null;
+  let txAmount = null;
+  let txCategory = null;
+  let txDate = null;
+  let txCard = null;
+
+  function ensureTxModalEls() {
+    if (txBackdrop) return true;
+    txBackdrop = document.getElementById('txModalBackdrop');
+    txMerchant = document.getElementById('txMerchant');
+    txAmount = document.getElementById('txAmount');
+    txCategory = document.getElementById('txCategory');
+    txDate = document.getElementById('txDate');
+    txCard = document.getElementById('txCard');
+    return !!txBackdrop;
+  }
+
+  function openTxModal(data) {
+    if (!ensureTxModalEls()) return;
+    txMerchant.textContent = data.merchant || 'Unknown';
+    txAmount.textContent = `$${fmt(data.amount || 0)}`;
+    txCategory.textContent = data.category || '—';
+    txDate.textContent = data.date || '—';
+    txCard.textContent = data.card || '—';
+    txBackdrop.classList.add('open');
+  }
+  function closeTxModal() {
+    if (!ensureTxModalEls()) return;
+    txBackdrop.classList.remove('open');
+  }
+
+  if (tbody) {
+    tbody.addEventListener('click', (e) => {
+      const row = e.target.closest('tr[data-tx]');
+      if (!row) return;
+      openTxModal({
+        merchant: row.getAttribute('data-merchant'),
+        category: row.getAttribute('data-category'),
+        date: row.getAttribute('data-date'),
+        amount: parseFloat(row.getAttribute('data-amount') || '0'),
+        card: row.getAttribute('data-card'),
+      });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!ensureTxModalEls()) return;
+    if (e.target === txBackdrop) closeTxModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeTxModal();
+  });
 })();
 </script>
 
-{% endblock %}
+<div id="txModalBackdrop" class="tx-modal-backdrop" role="dialog" aria-modal="true" aria-label="Transaction details">
+  <div class="tx-modal">
+    <div class="tx-modal-header">
+      <div>
+        <div class="text-xs uppercase opacity-60">Transaction</div>
+        <div id="txMerchant" class="text-xl font-semibold">—</div>
+      </div>
+      <button class="px-3 py-2 rounded-xl border border-slate-200" onclick="document.getElementById('txModalBackdrop').classList.remove('open')">
+        Close
+      </button>
+    </div>
+    <div class="tx-modal-body">
+      <div class="tx-modal-kv">
+        <div class="label">Amount</div><div id="txAmount">—</div>
+        <div class="label">Category</div><div id="txCategory">—</div>
+        <div class="label">Date</div><div id="txDate">—</div>
+        <div class="label">Card</div><div id="txCard">—</div>
+      </div>
+    </div>
+  </div>
+</div>
 
+{% endblock %}
