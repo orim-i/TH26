@@ -126,7 +126,7 @@ def perks_dashboard(request):
             }
 
     if not cards:
-        return render(request, "wallet/deals.html", {"cards": [], "issuers": []})
+        return render(request, "wallet/deals.html", {"cards": [], "issuers": [], "deals": []})
 
     valid_ids = set(cards.keys())
 
@@ -187,10 +187,24 @@ def perks_dashboard(request):
                     "end_date": end_date,
                 }
 
+    # --- Load deals from deals table ---
+    with connection.cursor() as cur:
+        try:
+            cur.execute("""
+                SELECT id, card_id, deal_type, title, subtitle, benefit, expiry_date, finer_details, issuer, card_name
+                FROM deals
+                ORDER BY expiry_date ASC, card_name ASC
+            """)
+            cols = [c[0] for c in cur.description]
+            deals = [dict(zip(cols, row)) for row in cur.fetchall()]
+        except Exception:
+            deals = []
+
     issuers = sorted({(c["issuer"] or "").strip() for c in cards.values() if c["issuer"]})
     return render(request, "wallet/deals.html", {
         "cards": list(cards.values()),
         "issuers": issuers,
+        "deals": deals,
     })
     
 

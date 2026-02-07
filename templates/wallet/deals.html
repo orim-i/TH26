@@ -2,7 +2,6 @@
 
 {% block content %}
 <div class="container-md px-4 my-5">
-  <!-- Header -->
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
       <h1 class="h3 fw-bold mb-1">Deals & Card Perks</h1>
@@ -16,7 +15,6 @@
     </div>
   </div>
 
-  <!-- Filter Row -->
   <div class="row align-items-center mb-3">
     <div class="col-auto fw-semibold">Filter Deals:</div>
     <div class="col-auto">
@@ -30,15 +28,45 @@
     <div class="col" id="activeFilters"></div>
   </div>
 
-  <!-- Deals Grid -->
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="h5 mb-0">Deals Spotlight</h2>
     <div class="small text-muted" id="dealCount">0 deals</div>
   </div>
   <div id="dealsGrid" class="row g-4"></div>
+
+  <noscript>
+    <div class="row g-4 mt-4">
+      {% for deal in deals|dictsort:"expiry_date" %}
+        <div class="col-12 col-md-6">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="fw-bold">{{ deal.title }}</div>
+              <div class="text-muted">{{ deal.expiry_date }}</div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </noscript>
 </div>
 
-<!-- Build the deals array from cards -->
+{% if deals %}
+  {% for deal in deals %}
+  <script>
+    (window._deals = window._deals || []).push({
+      type: "{{ deal.deal_type|default:'Special'|escapejs }}", // Uses DB deal_type
+      title: "{{ deal.title|escapejs }}",
+      subtitle: "{{ deal.subtitle|default:''|escapejs }}",
+      benefit: "{{ deal.benefit|default:''|escapejs }}",
+      card: "{{ deal.card_name|default:''|escapejs }}",
+      issuer: "{{ deal.issuer|default:'—'|escapejs }}",
+      expires: "{{ deal.expiry_date|default:''|escapejs }}", // DIRECT MAPPING of DB expiry_date
+      finer_details: "{{ deal.finer_details|default:''|escapejs }}"
+    });
+  </script>
+  {% endfor %}
+{% endif %}
+
 {% for c in cards %}
   {% if c.welcome_bonus %}
     <script>
@@ -92,44 +120,43 @@
   {% endif %}
 {% endfor %}
 
-<!-- Render and filter deals (fixed JS) -->
 <script>
 (function(){
-  const allDeals = (window._deals || []).filter(Boolean);
+  const allDeals = (window._deals = window._deals || []).filter(Boolean);
 
   function getTag(d){
-    if(d.type==='welcome') return 'Welcome';
-    if(d.type==='perk') return 'Perk';
-    if(d.type==='category') {
+    const t = (d.type || '').toLowerCase();
+    if(t === 'welcome') return 'Welcome';
+    if(t === 'perk') return 'Perk';
+    if(t.includes('travel')) return 'Travel';
+    if(t.includes('dining') || t.includes('food')) return 'Food';
+    if(t.includes('offer') || t.includes('deal')) return 'Offers';
+    if(t === 'category') {
       if(d.title.includes('Travel')) return 'Travel';
       if(d.title.includes('Cheap')) return 'Cheap';
       return 'Food/Entertainment';
     }
-    return 'Food/Entertainment';
+    return 'Offers'; 
   }
 
-  const tags = Array.from(new Set(allDeals.map(getTag)));
+  const tags = Array.from(new Set(allDeals.map(getTag))).sort();
 
-  // Helper to parse date or return a far future date if missing
   function parseExpiry(exp) {
     if (!exp) return new Date('2099-12-31');
-    // Try to parse YYYY-MM-DD
     const d = new Date(exp);
     return isNaN(d.getTime()) ? new Date('2099-12-31') : d;
   }
 
-  // Dropdown filter logic
   const filterDropdown = document.getElementById('dealDropdownFilters');
   const activeFiltersSpan = document.getElementById('activeFilters');
-  let activeFilters = [...tags]; // Start with all filters active
+  let activeFilters = [...tags];
 
-  // Populate dropdown, removing already active filters
   function renderDropdown() {
     filterDropdown.innerHTML = '';
     let added = false;
     tags.forEach(tag => {
       if (!activeFilters.includes(tag)) {
-        const id = 'filter-' + tag.replace(/\s+/g, '');
+        const id = 'filter-' + tag.replace(/[^a-zA-Z0-9]/g, '');
         filterDropdown.innerHTML += `
           <li>
             <a class="dropdown-item" href="#" data-filter="${tag}" id="${id}">${tag}</a>
@@ -143,7 +170,6 @@
     }
   }
 
-  // Render active filter labels with x
   function renderActiveFilters() {
     activeFiltersSpan.innerHTML = activeFilters.map(tag => `
       <span class="badge bg-light border text-dark me-1 mb-1" style="font-size:0.95em;">
@@ -153,7 +179,6 @@
     `).join('');
   }
 
-  // Render deals
   function renderDeals() {
     renderDropdown();
     renderActiveFilters();
@@ -161,7 +186,6 @@
     const count = document.getElementById('dealCount');
     const checked = activeFilters;
 
-    // Sort deals by expiry date, closest first
     const filtered = allDeals
       .filter(d => checked.includes(getTag(d)))
       .sort((a, b) => parseExpiry(a.expires) - parseExpiry(b.expires));
@@ -175,21 +199,30 @@
 
     grid.innerHTML = filtered.slice(0, 24).map(d => {
       const cap = [d.card, d.issuer].filter(Boolean).join(' • ');
-      const exp = d.expires ? `Ends ${d.expires}` : '';
+      const exp = d.expires ? `Ends ${d.expires}` : ''; 
       const tag = getTag(d);
+
+      // No highlight for points/cash
+      const benefitHtml = d.benefit
+        ? `<div class="mb-2">${d.benefit}</div>`
+        : '';
 
       return `
         <div class="col-12 col-md-6">
           <div class="card h-100" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
             <div class="card-body">
-              <div class="d-flex align-items-center justify-content-between mb-1">
+              <div class="d-flex align-items-center justify-content-between mb-2">
                 <span class="badge bg-light border text-dark">${tag}</span>
+                <span class="small text-muted" style="min-width:90px;text-align:right;">${exp || "—"}</span>
               </div>
-              <div class="fw-bold" style="font-size:1.05rem">${d.title || ''}</div>
-              ${d.subtitle ? `<div class="text-muted small mt-1">${d.subtitle}</div>` : ''}
-              <div class="d-flex align-items-center justify-content-between mt-3">
-                <div class="text-muted small">${cap}</div>
-                <div class="text-muted small">${exp}</div>
+              <div class="fw-bold mb-1" style="font-size:1.1rem">${d.title || ''}</div>
+              ${d.subtitle ? `<div class="text-muted small mb-1">${d.subtitle}</div>` : ''}
+              ${benefitHtml}
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div class="text-muted small">
+                  <i class="bi bi-credit-card me-1"></i>${d.card} <span class="mx-1">•</span> ${d.issuer}
+                </div>
+                ${d.finer_details ? `<div class="text-muted small text-end">${d.finer_details}</div>` : ''}
               </div>
             </div>
           </div>
@@ -197,7 +230,7 @@
     }).join('');
   }
 
-  // Dropdown click to add filter
+  // Event Listeners
   filterDropdown.addEventListener('click', function(e){
     const tag = e.target.getAttribute('data-filter');
     if(tag && !activeFilters.includes(tag)){
@@ -207,7 +240,6 @@
     e.preventDefault();
   });
 
-  // Remove filter with x button
   activeFiltersSpan.addEventListener('click', function(e){
     const tag = e.target.getAttribute('data-remove-filter');
     if(tag){
