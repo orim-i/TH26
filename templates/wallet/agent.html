@@ -1,43 +1,53 @@
 {% extends "layouts/base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="mx-auto max-w-6xl p-6">
-  <!-- Title -->
-  <div class="flex items-center justify-between mb-6">
+  <!-- Title and Controls -->
+  <div class="flex items-center justify-between mb-4">
     <div>
       <h1 class="text-3xl font-bold tracking-tight">AI Financial Agent</h1>
       <p class="text-sm opacity-70">Ask me anything about your spending, budgets, or financial goals.</p>
     </div>
+    <div class="flex gap-3 items-center">
+      <label class="text-sm font-semibold text-slate-700">Model:</label>
+      <select id="modelSelect" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <option value="anthropic/claude-sonnet-4-5-20250929">Claude Sonnet 4.5</option>
+        <option value="anthropic/claude-haiku-4-5-20251001">Claude Haiku 4.5</option>
+        <option value="anthropic/claude-opus-4-6">Claude Opus 4.6</option>
+      </select>
+      <button id="clearChat" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm hover:bg-slate-50 transition">
+        Clear Chat
+      </button>
+    </div>
+  </div>
+
+  <!-- Feature Tabs -->
+  <div class="flex gap-2 mb-4">
+    <button class="feature-tab active" data-feature="general">
+      <span class="tab-text">General Chat</span>
+      <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+    </button>
+    <button class="feature-tab" data-feature="budget">
+      <span class="tab-text">Budget Plans</span>
+      <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+    </button>
+    <button class="feature-tab" data-feature="analytics">
+      <span class="tab-text">Spending Analytics</span>
+      <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+    </button>
+    <button class="feature-tab" data-feature="goals">
+      <span class="tab-text">Goal Progress</span>
+      <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+    </button>
   </div>
 
   <!-- Chat Container -->
-  <div class="rounded-2xl shadow-md bg-white/70 backdrop-blur border border-slate-100 overflow-hidden" style="height: calc(100vh - 280px); display: flex; flex-direction: column;">
+  <div class="rounded-2xl shadow-md bg-white/70 backdrop-blur border border-slate-100 overflow-hidden" style="height: calc(100vh - 380px); display: flex; flex-direction: column;">
 
     <!-- Chat Messages -->
     <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
-      <!-- Welcome Message -->
-      <div class="flex items-start gap-3">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-          AI
-        </div>
-        <div class="flex-1">
-          <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-4 border border-indigo-100">
-            <p class="text-sm text-slate-700">
-              👋 Hi! I'm your financial assistant. I can help you with:
-            </p>
-            <ul class="text-sm text-slate-700 mt-2 ml-4 list-disc space-y-1">
-              <li>Analyzing your recent spending patterns</li>
-              <li>Setting up budget plans for the month</li>
-              <li>Reviewing your credit card usage</li>
-              <li>Tracking your financial goals</li>
-            </ul>
-            <p class="text-sm text-slate-700 mt-3">
-              Try asking: <em>"Analyze my recent spending"</em> or <em>"Set a budget plan for this month"</em>
-            </p>
-          </div>
-          <div class="text-xs text-slate-400 mt-1 ml-1">Just now</div>
-        </div>
-      </div>
+      <!-- Messages will appear here -->
     </div>
 
     <!-- Chat Input -->
@@ -67,21 +77,21 @@
 <style>
   /* Chat-specific styles */
   .mx-auto{margin-inline:auto}.max-w-6xl{max-width:72rem}
-  .p-6{padding:1.5rem}.p-4{padding:1rem}.p-3{padding:.75rem}
-  .mb-6{margin-bottom:1.5rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}
+  .p-6{padding:1.5rem}.p-4{padding:1rem}.p-3{padding:.75rem}.p-2{padding:.5rem}
+  .mb-6{margin-bottom:1.5rem}.mb-4{margin-bottom:1rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}
   .text-3xl{font-size:1.75rem}.text-sm{font-size:.875rem}.text-xs{font-size:.75rem}
   .font-bold{font-weight:800}.font-semibold{font-weight:700}
   .opacity-70{opacity:.7}
   .flex{display:flex}.flex-1{flex:1}.flex-shrink-0{flex-shrink:0}
   .items-center{align-items:center}.items-start{align-items:start}
-  .justify-between{justify-content:space-between}
-  .gap-3{gap:.75rem}.gap-4{gap:1rem}
+  .justify-between{justify-content:space-between}.justify-end{justify-content:end}
+  .gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}
   .space-y-1>*+*{margin-top:.25rem}.space-y-4>*+*{margin-top:1rem}
   .rounded-2xl{border-radius:1rem}.rounded-xl{border-radius:.75rem}.rounded-full{border-radius:9999px}
-  .rounded-tl-none{border-top-left-radius:0}
-  .bg-white\/70{background:rgba(255,255,255,.7)}.bg-white\/80{background:rgba(255,255,255,.8)}
+  .rounded-tl-none{border-top-left-radius:0}.rounded-tr-none{border-top-right-radius:0}
+  .bg-white{background:#fff}.bg-white\/70{background:rgba(255,255,255,.7)}.bg-white\/80{background:rgba(255,255,255,.8)}
   .bg-indigo-50{background:#eef2ff}.bg-indigo-500{background:#6366f1}.bg-indigo-600{background:#4f46e5}
-  .hover\:bg-indigo-700:hover{background:#4338ca}
+  .hover\:bg-indigo-700:hover{background:#4338ca}.hover\:bg-slate-50:hover{background:#f8fafc}
   .bg-slate-50{background:#f8fafc}.bg-slate-100{background:#f1f5f9}
   .text-white{color:#fff}.text-slate-400{color:#94a3b8}.text-slate-700{color:#334155}
   .border{border:1px solid}.border-t{border-top:1px solid}
@@ -90,18 +100,127 @@
   .shadow-md{box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)}
   .overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}
   .w-8{width:2rem}.h-8{height:2rem}
-  .px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}
-  .py-3{padding-top:.75rem;padding-bottom:.75rem}
-  .ml-1{margin-left:.25rem}.ml-4{margin-left:1rem}
+  .px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}
+  .py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}
+  .ml-1{margin-left:.25rem}.ml-4{margin-left:1rem}.mr-1{margin-right:.25rem}
   .list-disc{list-style-type:disc}
   .tracking-tight{letter-spacing:-.025em}
   .transition{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:150ms}
+  .max-w-2xl{max-width:42rem}
+
+  /* Feature tabs */
+  .feature-tab {
+    padding: .75rem 1.25rem;
+    border-radius: .75rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-tab .tab-text {
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+  }
+  .feature-tab .coin-animation {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .feature-tab:hover:not(.active) {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+  .feature-tab:hover:not(.active) .coin-animation {
+    animation: coinFallFeatureHover 0.6s ease-in-out;
+  }
+  @keyframes coinFallFeatureHover {
+    0% { opacity: 0; top: -24px; transform: translateX(-50%); }
+    20% { opacity: 1; }
+    100% { opacity: 0; top: 36px; transform: translateX(-50%); }
+  }
+  .feature-tab.active {
+    /* No background change - just show the coin */
+    border-color: #cbd5e1;
+  }
+  .feature-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd700, #ffed4e, #f7dc6f, #ffd700);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    z-index: 2;
+    animation: tabGlow 2s ease-in-out infinite;
+  }
+  @keyframes tabGlow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { opacity: 0.9; box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); }
+  }
+  .feature-tab.active .coin-animation {
+    opacity: 1;
+    top: 32px;
+    animation: coinFallFeatureActive 0.5s ease-out forwards;
+  }
+  @keyframes coinFallFeatureActive {
+    0% { opacity: 0; top: -24px; transform: translateX(-50%); }
+    30% { opacity: 1; }
+    100% { opacity: 1; top: 32px; transform: translateX(-50%); }
+  }
+  .feature-tab.leaving .coin-animation {
+    animation: coinFallFeatureComplete 0.3s ease-in forwards;
+  }
+  @keyframes coinFallFeatureComplete {
+    0% { opacity: 1; top: 32px; transform: translateX(-50%); }
+    100% { opacity: 0; top: 40px; transform: translateX(-50%); }
+  }
 
   /* User message styling */
   .user-message {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
+  }
+
+  /* AI message styling with markdown support */
+  .ai-message-content {
+    line-height: 1.6;
+  }
+  .ai-message-content p {
+    margin-bottom: 0.5rem;
+  }
+  .ai-message-content ul, .ai-message-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .ai-message-content li {
+    margin-bottom: 0.25rem;
+  }
+  .ai-message-content strong {
+    font-weight: 700;
+  }
+  .ai-message-content em {
+    font-style: italic;
+  }
+  .ai-message-content code {
+    background: rgba(0,0,0,.05);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+    font-size: 0.85em;
   }
 
   /* Typing indicator */
@@ -132,14 +251,113 @@
   const chatInput = document.getElementById('chatInput');
   const chatMessages = document.getElementById('chatMessages');
   const sendBtn = document.getElementById('sendBtn');
+  const modelSelect = document.getElementById('modelSelect');
+  const clearChatBtn = document.getElementById('clearChat');
+  const featureTabs = document.querySelectorAll('.feature-tab');
+
+  // State management
+  let conversationHistories = {
+    general: [],
+    budget: [],
+    analytics: [],
+    goals: []
+  };
+  let currentFeature = 'general';
+
+  // Get storage key for current feature
+  function getStorageKey(feature) {
+    return `agent_chat_history_${feature}`;
+  }
+
+  // Load conversation history for specific feature from localStorage
+  function loadHistory(feature) {
+    try {
+      const saved = localStorage.getItem(getStorageKey(feature));
+      if (saved) {
+        conversationHistories[feature] = JSON.parse(saved);
+      } else {
+        conversationHistories[feature] = [];
+      }
+    } catch (e) {
+      console.error('Failed to load history for', feature, ':', e);
+      conversationHistories[feature] = [];
+    }
+  }
+
+  // Save conversation history for specific feature to localStorage
+  function saveHistory(feature) {
+    try {
+      localStorage.setItem(getStorageKey(feature), JSON.stringify(conversationHistories[feature]));
+    } catch (e) {
+      console.error('Failed to save history for', feature, ':', e);
+    }
+  }
+
+  // Clear conversation history for current feature
+  function clearHistory() {
+    conversationHistories[currentFeature] = [];
+    localStorage.removeItem(getStorageKey(currentFeature));
+    // Clear UI
+    clearChatUI();
+  }
+
+  // Clear chat UI
+  function clearChatUI() {
+    chatMessages.innerHTML = '';
+  }
+
+  // Load chat history into UI for current feature
+  function loadChatUI(feature) {
+    clearChatUI();
+    conversationHistories[feature].forEach(msg => {
+      if (msg.role === 'user') {
+        addUserMessage(msg.content, false);
+      } else if (msg.role === 'assistant') {
+        addAIMessage(msg.content, false);
+      }
+    });
+  }
+
+  // Feature-specific prompts
+  const featurePrompts = {
+    general: "You are a helpful financial assistant. Provide clear, actionable advice about spending, budgeting, and financial goals.",
+    budget: "You are a budget planning specialist. Help users create, review, and optimize their budget plans. Focus on practical recommendations based on their spending patterns.",
+    analytics: "You are a spending analytics expert. Analyze spending patterns, identify trends, highlight anomalies, and provide insights about where money is going.",
+    goals: "You are a financial goal tracking expert. Help users track their progress toward financial goals, identify obstacles, and suggest strategies to stay on track."
+  };
 
   // Scroll to bottom of chat
   function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
+  // Simple markdown to HTML converter
+  function markdownToHtml(text) {
+    return text
+      // Headers
+      .replace(/^### (.*$)/gm, '<h3 style="font-weight:700;margin-top:1rem;margin-bottom:0.5rem">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 style="font-weight:700;font-size:1.125rem;margin-top:1rem;margin-bottom:0.5rem">$1</h2>')
+      // Bold
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Lists
+      .replace(/^\- (.*$)/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul style="margin-left:1.5rem;margin-bottom:0.5rem">$1</ul>')
+      // Line breaks
+      .replace(/\n\n/g, '</p><p style="margin-bottom:0.5rem">')
+      .replace(/\n/g, '<br>');
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Add user message to chat
-  function addUserMessage(text) {
+  function addUserMessage(text, save = true) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'flex items-start gap-3 justify-end';
     messageDiv.innerHTML = `
@@ -151,12 +369,17 @@
           <div class="text-xs text-slate-400 mt-1 mr-1 text-right">Just now</div>
         </div>
       </div>
-      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
+      <div class="flex-shrink-0 w-8 h-8 rounded-full" style="background:linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.75rem">
         You
       </div>
     `;
     chatMessages.appendChild(messageDiv);
     scrollToBottom();
+
+    if (save) {
+      conversationHistories[currentFeature].push({ role: 'user', content: text });
+      saveHistory(currentFeature);
+    }
   }
 
   // Add AI typing indicator
@@ -165,9 +388,7 @@
     typingDiv.id = 'typingIndicator';
     typingDiv.className = 'flex items-start gap-3';
     typingDiv.innerHTML = `
-      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-        AI
-      </div>
+      <img src="{% static 'img/coin.png' %}" alt="AI" class="flex-shrink-0 w-8 h-8" style="object-fit:contain">
       <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-2 border border-indigo-100">
         <div class="typing-indicator">
           <span></span>
@@ -187,31 +408,66 @@
   }
 
   // Add AI response to chat
-  function addAIMessage(text) {
+  function addAIMessage(text, save = true) {
     removeTypingIndicator();
     const messageDiv = document.createElement('div');
     messageDiv.className = 'flex items-start gap-3';
+
+    // Convert markdown to HTML
+    const htmlContent = markdownToHtml(escapeHtml(text));
+
     messageDiv.innerHTML = `
-      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
-        AI
-      </div>
+      <img src="{% static 'img/coin.png' %}" alt="AI" class="flex-shrink-0 w-8 h-8" style="object-fit:contain">
       <div class="flex-1">
         <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-4 border border-indigo-100">
-          <p class="text-sm text-slate-700">${escapeHtml(text)}</p>
+          <div class="text-sm text-slate-700 ai-message-content"><p style="margin-bottom:0.5rem">${htmlContent}</p></div>
         </div>
         <div class="text-xs text-slate-400 mt-1 ml-1">Just now</div>
       </div>
     `;
     chatMessages.appendChild(messageDiv);
     scrollToBottom();
+
+    if (save) {
+      conversationHistories[currentFeature].push({ role: 'assistant', content: text });
+      saveHistory(currentFeature);
+    }
   }
 
-  // Escape HTML to prevent XSS
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  // Handle feature tab clicks
+  featureTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Don't do anything if clicking the already active tab
+      if (this.classList.contains('active')) return;
+
+      // Handle leaving animation for previous tab
+      const currentActive = document.querySelector('.feature-tab.active');
+      if (currentActive) {
+        currentActive.classList.add('leaving');
+        setTimeout(() => {
+          currentActive.classList.remove('active', 'leaving');
+        }, 300);
+      }
+
+      // Activate new tab
+      this.classList.add('active');
+
+      // Switch to new feature
+      const newFeature = this.dataset.feature;
+      currentFeature = newFeature;
+
+      // Load history for this feature
+      loadHistory(newFeature);
+      loadChatUI(newFeature);
+    });
+  });
+
+  // Handle clear chat
+  clearChatBtn.addEventListener('click', function() {
+    if (confirm('Clear all chat history for this tab?')) {
+      clearHistory();
+    }
+  });
 
   // Handle form submission
   chatForm.addEventListener('submit', async function(e) {
@@ -235,14 +491,19 @@
       // Get CSRF token
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-      // Send message to server
+      // Send message with history, model, and feature context
       const response = await fetch('{% url "agent" %}', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken
         },
-        body: JSON.stringify({ message: message })
+        body: JSON.stringify({
+          message: message,
+          history: conversationHistories[currentFeature].slice(-10), // Last 10 messages for context
+          model: modelSelect.value,
+          feature: currentFeature
+        })
       });
 
       const data = await response.json();
@@ -262,6 +523,14 @@
       chatInput.focus();
     }
   });
+
+  // Load history for all features on page load
+  ['general', 'budget', 'analytics', 'goals'].forEach(feature => {
+    loadHistory(feature);
+  });
+
+  // Load UI for current feature (general)
+  loadChatUI(currentFeature);
 
   // Focus input on load
   chatInput.focus();
