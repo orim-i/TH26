@@ -293,13 +293,14 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.views.decorators.csrf import csrf_exempt
 import sqlite3
-import google.generativeai as genai
+import asyncio
+from dedalus_labs import AsyncDedalus, DedalusRunner
 import markdown2
 from django.conf import settings
+import os
 
-# configure Gemini
-genai.configure(api_key=settings.GEMINI_API_KEY)
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+# configure Dedalus
+os.environ["DEDALUS_API_KEY"] = settings.DEDALUS_API_KEY
 
 
 def get_summary():
@@ -410,9 +411,19 @@ def spending_dashboard(request):
                 "check progress on goals, and propose a revised budget plan.\n\n"
                 f"{summary_text}"
             )
-            resp = gemini_model.generate_content(prompt)
+            # Use Dedalus to analyze spending
+            async def get_analysis():
+                client = AsyncDedalus()
+                runner = DedalusRunner(client)
+                response = await runner.run(
+                    input=prompt,
+                    model="anthropic/claude-sonnet-4-5-20250929",
+                )
+                return response.final_output
+
+            resp_text = asyncio.run(get_analysis())
             # convert Markdown -> HTML
-            analysis = markdown2.markdown(resp.text)
+            analysis = markdown2.markdown(resp_text)
 
     # --- Transactions ---
     with connection.cursor() as cur:
@@ -482,3 +493,9 @@ def spending_dashboard(request):
         "wallet/goals.html",
         {"transactions": transactions, "goals": goals, "budget": budget, "analysis": analysis},
     )
+
+
+@login_required
+def subscriptions_dashboard(request):
+    subscriptions = Subscription.objects.filter(user=request.user)
+    return render(request, "wallet/subscriptions.html", {"subscriptions": subscriptions})

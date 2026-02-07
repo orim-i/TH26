@@ -28,8 +28,8 @@ gunicorn==23.0.0
 django-dbbackup==4.2.1
 
 
-# Google Gemini client
-google-generativeai>=0.8.0
+# Dedalus AI SDK
+dedalus_labs
 
 #plaid
 plaid-python>=36
