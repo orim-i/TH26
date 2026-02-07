@@ -43,9 +43,13 @@
   -->
 
   {% if spending_alerts %}
-  <div class="row mb-4">
+  <div class="row mb-4" id="spendingAlertRow">
     <div class="col-12">
-      <div class="alert alert-{{ spending_alert_severity|default:"warning" }} d-flex align-items-start gap-2 alert-dismissible fade show">
+      <div
+        class="alert alert-{{ spending_alert_severity|default:"warning" }} d-flex align-items-start gap-2 alert-dismissible fade show"
+        id="spendingAlert"
+        data-alert-signature="{% for alert in spending_alerts %}{{ alert.goal_id }}:{{ alert.category }}:{{ alert.percent }}:{{ alert.threshold }}{% if not forloop.last %}|{% endif %}{% endfor %}"
+      >
         <div class="me-1">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
@@ -504,5 +508,29 @@ cb.addEventListener('change', renderDeals);
   window.widgetLineSeries = {{ widget_line_series|safe }};
 </script>
 <script src="{% static "assets/js/pages/dashboard-default.js" %}"></script>
+<script>
+  (function () {
+    const alertEl = document.getElementById("spendingAlert");
+    const alertRow = document.getElementById("spendingAlertRow");
+    if (!alertEl) return;
+    const signature = alertEl.getAttribute("data-alert-signature") || "";
+    const storageKey = "spending_alert_dismissed_signature";
+
+    try {
+      const dismissed = localStorage.getItem(storageKey);
+      if (dismissed && dismissed === signature) {
+        if (alertRow) alertRow.remove();
+        return;
+      }
+    } catch (e) {}
+
+    alertEl.addEventListener("closed.bs.alert", function () {
+      if (alertRow) alertRow.remove();
+      try {
+        localStorage.setItem(storageKey, signature);
+      } catch (e) {}
+    });
+  })();
+</script>
 
 {% endblock extra_js %}
