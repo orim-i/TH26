@@ -713,6 +713,18 @@
     });
   });
 
+  function activateFeature(feature) {
+    const tab = Array.from(featureTabs).find(t => t.dataset.feature === feature);
+    if (!tab) return;
+    if (!tab.classList.contains('active')) {
+      tab.click();
+    } else if (feature === 'wrapped') {
+      chatContainer.style.display = 'none';
+      wrappedContainer.style.display = '';
+      if (!wrappedLoaded) loadWrapped();
+    }
+  }
+
   // Handle clear chat
   clearChatBtn.addEventListener('click', function() {
     if (confirm('Clear all chat history for this tab?')) {
@@ -782,6 +794,12 @@
 
   // Load UI for current feature (general)
   loadChatUI(currentFeature);
+
+  // Activate feature from hash (e.g., #wrapped)
+  if (window.location.hash) {
+    const hashFeature = window.location.hash.replace('#', '');
+    activateFeature(hashFeature);
+  }
 
   // --- Wrapped logic ---
   const barColors = [
