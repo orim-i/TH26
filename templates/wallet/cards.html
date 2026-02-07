@@ -7,6 +7,84 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    position: relative;
+  }
+
+  .card-gold {
+    color: #3a2c00;
+    background: linear-gradient(145deg, #f6e27a 0%, #d8b850 28%, #f8e79c 55%, #c79f2c 78%, #f0d66a 100%);
+    border: 1px solid rgba(168, 122, 0, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -2px 8px rgba(120, 80, 0, 0.25),
+      0 12px 28px -14px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-gold::before,
+  .card-silver::before,
+  .card-black::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background:
+      linear-gradient(120deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.25) 18%, rgba(255,255,255,0) 45%),
+      radial-gradient(120px 60px at 85% 15%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .card-gold::after,
+  .card-silver::after,
+  .card-black::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 10px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .card-gold .card-body,
+  .card-silver .card-body,
+  .card-black .card-body {
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-silver {
+    color: #1f2937;
+    background:
+      linear-gradient(115deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 35%),
+      radial-gradient(260px 140px at 15% 85%, rgba(255,255,255,0.45), rgba(255,255,255,0) 60%),
+      linear-gradient(160deg, #f7f8fb 0%, #c8d0de 35%, #eef1f6 60%, #9eabbf 85%, #eef1f6 100%);
+    border: 1px solid rgba(120, 130, 150, 0.6);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      inset 0 -2px 8px rgba(80, 90, 110, 0.2),
+      0 12px 28px -14px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-black {
+    color: #f8fafc;
+    background: linear-gradient(145deg, #1f2937 0%, #0f172a 35%, #111827 65%, #0b1020 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 -2px 10px rgba(0, 0, 0, 0.45),
+      0 12px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  .card-black .badge,
+  .card-black .text-muted {
+    color: rgba(248, 250, 252, 0.85) !important;
+  }
+
+  .card-black .badge.bg-light {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
   }
 </style>
 
@@ -61,7 +139,7 @@
   <div id="cardView" class="row g-4" style="display: none;">
     {% for c in cards|dictsort:"annual_fee" %}
     <div class="col-md-6">
-      <div class="card card-standard" id="{{ c.card_name|slugify }}" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
+      <div class="card card-standard card-metal" id="{{ c.card_name|slugify }}" style="border-radius:14px;">
         <div class="card-body">
           <!-- Card Header -->
           <div class="d-flex align-items-start justify-content-between">
@@ -176,5 +254,15 @@
       cardBtn.classList.add('active');
     }
   }
+
+  // Randomly assign metallic theme per card (gold/silver/black)
+  (function applyRandomMetalThemes() {
+    const variants = ["card-gold", "card-silver", "card-black"];
+    const cards = document.querySelectorAll(".card-metal");
+    cards.forEach((el) => {
+      const pick = variants[Math.floor(Math.random() * variants.length)];
+      el.classList.add(pick);
+    });
+  })();
 </script>
 {% endblock %}
