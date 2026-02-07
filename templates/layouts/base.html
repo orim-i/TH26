@@ -26,6 +26,9 @@
         position: relative;
         overflow-x: hidden;
       }
+      .page-content {
+        padding-top: 120px;
+      }
 
       /* Container for floating glass squares */
       body::before,
@@ -252,7 +255,9 @@
       {% include "includes/navigation.html" %}
     {% endblock navigation %}
 
-    {% block content %}{% endblock content %}
+    <main class="page-content">
+      {% block content %}{% endblock content %}
+    </main>
      
     {% block footer %}
       {% include "includes/footer.html" %}
