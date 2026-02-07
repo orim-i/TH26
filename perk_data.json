@@ -5,30 +5,24 @@
     "annual_fee": 0,
     "type": "rotating_bonus_categories",
     "current_period": {
-      "start_date": "2025-07-01",
-      "end_date": "2025-09-30"
+      "start_date": "2026-04-01",
+      "end_date": "2026-06-30"
     },
     "bonus_categories": [
-      {
-        "category_name": "Instacart",
-        "reward_rate": 5,
-        "cap": 1500,
-        "note": "Must activate this quarter"
-      },
-      {
-        "category_name": "Select Live Entertainment",
-        "reward_rate": 5,
-        "cap": 1500,
-        "note": ""
-      },
       {
         "category_name": "Gas Stations",
         "reward_rate": 5,
         "cap": 1500,
-        "note": ""
+        "note": "Activation required"
       },
       {
         "category_name": "EV Charging",
+        "reward_rate": 5,
+        "cap": 1500,
+        "note": ""
+      },
+      {
+        "category_name": "Select Streaming Services",
         "reward_rate": 5,
         "cap": 1500,
         "note": ""
@@ -38,7 +32,8 @@
     "welcome_bonus": {
       "points_or_cash": 200,
       "spend_requirement": 500,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-09-30"
     }
   },
   {
@@ -49,24 +44,25 @@
     "perks": [
       {
         "perk_name": "Annual Travel Credit",
-        "description": "$300 travel credit per year",
+        "description": "$300 travel credit per calendar year",
         "frequency": "yearly"
       },
       {
-        "perk_name": "Lounge Access",
-        "description": "Priority Pass lounge access",
+        "perk_name": "Airport Lounge Access",
+        "description": "Priority Pass Select membership",
         "frequency": "ongoing"
       },
       {
         "perk_name": "Enhanced Earning",
-        "description": "8× points on Chase Travel purchases, 3× points on Dining, 1× on others",
+        "description": "8× points on Chase Travel, 3× on dining, 1× on all other purchases",
         "frequency": "ongoing"
       }
     ],
     "welcome_bonus": {
-      "points": 125000,
+      "points": 100000,
       "spend_requirement": 6000,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-07-15"
     }
   },
   {
@@ -82,13 +78,13 @@
         "note": ""
       },
       {
-        "category_name": "U.S. Supermarkets (up to $25,000/yr)",
+        "category_name": "U.S. Supermarkets (up to $25,000 per year)",
         "reward_rate": 4,
         "cap": 25000,
         "note": ""
       },
       {
-        "category_name": "Flights booked with airlines or on AmexTravel.com",
+        "category_name": "Flights booked directly with airlines",
         "reward_rate": 3,
         "cap": null,
         "note": ""
@@ -96,9 +92,10 @@
     ],
     "base_reward_rate": 1,
     "welcome_bonus": {
-      "points": 80000,
+      "points": 90000,
       "spend_requirement": 6000,
-      "time_frame_months": 6
+      "time_frame_months": 6,
+      "offer_expiry_date": "2026-10-31"
     }
   },
   {
@@ -108,7 +105,7 @@
     "type": "travel_focused",
     "bonus_categories": [
       {
-        "category_name": "Hotels, car rentals, attractions via CitiTravel",
+        "category_name": "Hotels, car rentals, attractions booked via CitiTravel",
         "reward_rate": 10,
         "cap": null,
         "note": ""
@@ -121,9 +118,10 @@
       }
     ],
     "welcome_bonus": {
-      "points": 60000,
+      "points": 65000,
       "spend_requirement": 4000,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-08-31"
     }
   },
   {
@@ -136,7 +134,8 @@
     "welcome_bonus": {
       "cash_back": 200,
       "spend_requirement": 500,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-12-31"
     }
   },
   {
@@ -160,9 +159,10 @@
     ],
     "base_reward_rate": 1,
     "welcome_bonus": {
-      "points": 25000,
-      "spend_requirement": 2000,
-      "time_frame_months": 3
+      "points": 30000,
+      "spend_requirement": 3000,
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-11-15"
     }
   },
   {
@@ -171,18 +171,18 @@
     "annual_fee": 0,
     "type": "rotating_bonus_categories",
     "current_period": {
-      "start_date": "2025-07-01",
-      "end_date": "2025-09-30"
+      "start_date": "2026-07-01",
+      "end_date": "2026-09-30"
     },
     "bonus_categories": [
       {
-        "category_name": "Grocery & Gas Stations",
+        "category_name": "Gas Stations & Public Transit",
         "reward_rate": 5,
         "cap": 1500,
-        "note": "Activate this quarter"
+        "note": "Activation required"
       },
       {
-        "category_name": "Home Improvement & Furniture Stores",
+        "category_name": "Dining",
         "reward_rate": 5,
         "cap": 1500,
         "note": ""
@@ -192,7 +192,8 @@
     "welcome_bonus": {
       "cash_back": 150,
       "spend_requirement": 500,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-09-30"
     }
   },
   {
@@ -210,9 +211,10 @@
     ],
     "base_reward_rate": 2,
     "welcome_bonus": {
-      "points": 75000,
+      "points": 80000,
       "spend_requirement": 4000,
-      "time_frame_months": 3
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-10-01"
     }
   },
   {
@@ -228,7 +230,7 @@
         "note": ""
       },
       {
-        "category_name": "Select Streaming Services",
+        "category_name": "U.S. Gas Stations",
         "reward_rate": 3,
         "cap": null,
         "note": ""
@@ -236,9 +238,10 @@
     ],
     "base_reward_rate": 1,
     "welcome_bonus": {
-      "cash_back": 250,
+      "cash_back": 300,
       "spend_requirement": 3000,
-      "time_frame_months": 3
+      "time_frame_months": 6,
+      "offer_expiry_date": "2026-12-31"
     }
   },
   {
@@ -249,9 +252,187 @@
     "base_reward_rate": 2,
     "perks": [],
     "welcome_bonus": {
-      "cash_back": null,
-      "spend_requirement": null,
-      "time_frame_months": null
+      "cash_back": 200,
+      "spend_requirement": 1500,
+      "time_frame_months": 6,
+      "offer_expiry_date": "2026-09-30"
+    }
+  },
+  {
+    "card_name": "Delta SkyMiles Platinum American Express Card",
+    "issuer": "American Express",
+    "annual_fee": 350,
+    "type": "airline_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "Delta purchases",
+        "reward_rate": 3,
+        "cap": null,
+        "note": ""
+      },
+      {
+        "category_name": "Dining worldwide",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      },
+      {
+        "category_name": "U.S. supermarket purchases",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 100000,
+      "spend_requirement": 6000,
+      "time_frame_months": 6,
+      "offer_expiry_date": "2026-04-01"
+    }
+  },
+  {
+    "card_name": "Delta SkyMiles Gold American Express Card",
+    "issuer": "American Express",
+    "annual_fee": 150,
+    "type": "airline_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "Delta purchases",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      },
+      {
+        "category_name": "Dining worldwide",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 70000,
+      "spend_requirement": 5000,
+      "time_frame_months": 6,
+      "offer_expiry_date": "2026-04-01"
+    }
+  },
+  {
+    "card_name": "Chase Sapphire Preferred",
+    "issuer": "Chase",
+    "annual_fee": 95,
+    "type": "travel_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "Travel",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      },
+      {
+        "category_name": "Dining",
+        "reward_rate": 3,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 75000,
+      "spend_requirement": 5000,
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-03-31"
+    }
+  },
+  {
+    "card_name": "Southwest Rapid Rewards Plus Credit Card",
+    "issuer": "Southwest",
+    "annual_fee": 0,
+    "type": "airline_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "Southwest purchases",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 100000,
+      "spend_requirement": 4000,
+      "time_frame_months": 5,
+      "offer_expiry_date": "2026-04-30"
+    }
+  },
+  {
+    "card_name": "United Quest℠ Card",
+    "issuer": "Chase / United",
+    "annual_fee": 250,
+    "type": "airline_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "United purchases",
+        "reward_rate": 3,
+        "cap": null,
+        "note": ""
+      },
+      {
+        "category_name": "Dining",
+        "reward_rate": 2,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 80000,
+      "spend_requirement": 4000,
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-04-01"
+    }
+  },
+  {
+    "card_name": "United Club℠ Card",
+    "issuer": "Chase / United",
+    "annual_fee": 695,
+    "type": "airline_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "United purchases",
+        "reward_rate": 4,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 1,
+    "welcome_bonus": {
+      "points": 90000,
+      "spend_requirement": 5000,
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-04-01"
+    }
+  },
+  {
+    "card_name": "Capital One Venture Rewards Credit Card (Limited Time)",
+    "issuer": "Capital One",
+    "annual_fee": 95,
+    "type": "travel_rewards",
+    "bonus_categories": [
+      {
+        "category_name": "Travel & Hotels booked via Capital One Travel",
+        "reward_rate": 5,
+        "cap": null,
+        "note": ""
+      }
+    ],
+    "base_reward_rate": 2,
+    "welcome_bonus": {
+      "points": 75000,
+      "spend_requirement": 4000,
+      "time_frame_months": 3,
+      "offer_expiry_date": "2026-05-15"
     }
   }
 ]
