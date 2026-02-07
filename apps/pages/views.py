@@ -137,6 +137,30 @@ def index(request):
           totals_by_date[str(tx_date)] = float(total or 0)
   widget_line_categories = [d.strftime("%a") for d in date_keys]
   widget_line_series = [totals_by_date[d] for d in date_strs]
+
+  # Current week (last 7 days) vs previous week (7 days before that)
+  current_week_start = start_date
+  current_week_end = end_date
+  previous_week_start = current_week_start - timedelta(days=7)
+  previous_week_end = current_week_start - timedelta(days=1)
+  with connection.cursor() as cur:
+      cur.execute(
+          """
+          SELECT
+            COALESCE(SUM(CASE WHEN date BETWEEN %s AND %s THEN amount END), 0),
+            COALESCE(SUM(CASE WHEN date BETWEEN %s AND %s THEN amount END), 0)
+          FROM transactions
+          """,
+          [
+              current_week_start.isoformat(),
+              current_week_end.isoformat(),
+              previous_week_start.isoformat(),
+              previous_week_end.isoformat(),
+          ],
+      )
+      current_week_spent, previous_week_spent = cur.fetchone()
+  current_week_spent = float(current_week_spent or 0)
+  previous_week_spent = float(previous_week_spent or 0)
   
   # all the deals stuff
   context = {
@@ -148,6 +172,8 @@ def index(request):
     'daily_spent': daily_spent,
     'widget_line_categories': json.dumps(widget_line_categories),
     'widget_line_series': json.dumps(widget_line_series),
+    'current_week_spent': current_week_spent,
+    'previous_week_spent': previous_week_spent,
   }
   return render(request, "pages/index.html", context)
 
