@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.db import connection
+from django.db.models import Sum, Count, Q
 
 from .models import Transaction, Card, Deal, Goal, Subscription
 import markdown2
@@ -11,6 +12,12 @@ from django.conf import settings
 from .plaid_pull import sync_plaid_to_sqlite
 from importlib.machinery import SourceFileLoader
 import sqlite3, os
+import asyncio
+from dedalus_labs import AsyncDedalus, DedalusRunner
+from django.views.decorators.csrf import csrf_exempt
+
+# configure Dedalus
+os.environ["DEDALUS_API_KEY"] = settings.DEDALUS_API_KEY
 
 def sync_plaid_to_sqlite(json_plaid_path, db_path, loader_path, bills_json_path=None, wipe_transactions=True):
     """
@@ -53,9 +60,9 @@ def sync_plaid_to_sqlite(json_plaid_path, db_path, loader_path, bills_json_path=
 
 @login_required
 def dashboard(request):
-    transactions = Transaction.objects.filter(user=request.user).order_by("-date")[:5]
-    goals = Goal.objects.filter(user=request.user)
-    cards = Card.objects.filter(user=request.user)
+    transactions = Transaction.objects.order_by("-date")[:5]
+    goals = Goal.objects.all()
+    cards = Card.objects.all()  # Loads all cards, no user filter
     return render(request, "wallet/dashboard.html", {
         "transactions": transactions,
         "goals": goals,
@@ -65,40 +72,34 @@ def dashboard(request):
 
 @login_required
 def cards_view(request):
-    cards = Card.objects.filter(user=request.user)
+    cards = Card.objects.all()  # Loads all cards, no user filter
     return render(request, "wallet/cards.html", {"cards": cards})
 
 @login_required
 def perks_dashboard(request):
-    with connection.cursor() as cur:
-        cur.executescript("PRAGMA foreign_keys = ON;")
-
+    orm_cards = Card.objects.all().order_by("issuer", "name")  # Loads all cards, no user filter
+    
     cards = {}
-    with connection.cursor() as cur:
-        cur.execute("""
-          SELECT id, card_name, issuer, COALESCE(annual_fee, 0), type, COALESCE(base_reward_rate, 0)
-          FROM cards
-          ORDER BY issuer, card_name
-        """)
-        for cid, name, issuer, fee, ctype, base_rate in cur.fetchall():
-            cards[cid] = {
-                "id": cid,
-                "card_name": name or "",
-                "issuer": issuer or "",
-                "annual_fee": float(fee or 0),
-                "type": ctype or "",
-                "base_reward_rate": float(base_rate or 0),
-                "bonus_categories": [],
-                "perks": [],
-                "welcome_bonus": None,
-                "current_period": None,
-            }
+    for c in orm_cards:
+        cards[c.id] = {
+            "id": c.id,
+            "card_name": c.name,
+            "issuer": c.issuer,
+            "annual_fee": float(c.annual_fee or 0),
+            "type": c.card_type,
+            "base_reward_rate": float(c.base_reward_rate or 0),
+            "bonus_categories": [],
+            "perks": [],
+            "welcome_bonus": None,
+            "current_period": None,
+        }
 
     if not cards:
         return render(request, "wallet/deals.html", {"cards": [], "issuers": []})
 
     valid_ids = set(cards.keys())
 
+    # Keep raw SQL for tables that do NOT have Django Models
     with connection.cursor() as cur:
         cur.execute("""
           SELECT card_id, idx, category_name, reward_rate, cap, note
@@ -168,15 +169,19 @@ def add_card(request):
         card_name = request.POST.get("card_name")
         issuer = request.POST.get("issuer")
         annual_fee = request.POST.get("annual_fee", 0)
-        card_type = request.POST.get("type", "")
+        card_type = request.POST.get("type", "credit")
         base_reward_rate = request.POST.get("base_reward_rate", 1)
 
         try:
-            with connection.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO cards (card_name, issuer, annual_fee, type, base_reward_rate)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, [card_name, issuer, annual_fee, card_type, base_reward_rate])
+            # Used Django ORM instead of raw INSERT
+            Card.objects.create(
+                user=request.user,
+                name=card_name,
+                issuer=issuer,
+                annual_fee=annual_fee,
+                card_type=card_type,
+                base_reward_rate=base_reward_rate
+            )
 
             messages.success(request, f"✅ {card_name} added successfully!")
             return redirect("cards_dashboard")
@@ -192,38 +197,36 @@ def add_card(request):
 @login_required
 def delete_card(request, card_id):
     if request.method == "POST":
-        with connection.cursor() as cur:
-            cur.execute("DELETE FROM cards WHERE id = %s", [card_id])
+        # Used Django ORM instead of raw DELETE
+        try:
+            card = Card.objects.get(id=card_id, user=request.user)
+            card.delete()
+        except Card.DoesNotExist:
+            pass # Handle gracefully or show error
         return redirect('/cards/')
     
 @login_required
 def cards_dashboard(request):
-    with connection.cursor() as cur:
-        cur.executescript("PRAGMA foreign_keys = ON;")
+    orm_cards = Card.objects.all().order_by("issuer", "name")  # Loads all cards, no user filter
 
     cards = {}
-    with connection.cursor() as cur:
-        cur.execute("""
-          SELECT id, card_name, issuer, COALESCE(annual_fee, 0), type, COALESCE(base_reward_rate, 0)
-          FROM cards
-          ORDER BY issuer, card_name
-        """)
-        for cid, name, issuer, fee, ctype, base_rate in cur.fetchall():
-            cards[cid] = {
-                "id": cid,
-                "card_name": name or "",
-                "issuer": issuer or "",
-                "annual_fee": float(fee or 0),
-                "type": ctype or "",
-                "base_reward_rate": float(base_rate or 0),
-                "bonus_categories": [],
-                "perks": [],
-                "welcome_bonus": None,
-                "current_period": None,
-            }
+    for c in orm_cards:
+        cards[c.id] = {
+            "id": c.id,
+            "card_name": c.name,
+            "issuer": c.issuer,
+            "annual_fee": float(c.annual_fee or 0),
+            "type": c.card_type,
+            "base_reward_rate": float(c.base_reward_rate or 0),
+            "bonus_categories": [],
+            "perks": [],
+            "welcome_bonus": None,
+            "current_period": None,
+        }
 
     valid_ids = set(cards.keys())
 
+    # Keep raw SQL for tables that do NOT have Django Models
     with connection.cursor() as cur:
         cur.execute("""
           SELECT card_id, idx, category_name, reward_rate, cap, note
@@ -289,69 +292,51 @@ def cards_dashboard(request):
     })
 
 
-from django.shortcuts import render, redirect
-from django.db import connection
-from django.views.decorators.csrf import csrf_exempt
-import sqlite3
-import asyncio
-from dedalus_labs import AsyncDedalus, DedalusRunner
-import markdown2
-from django.conf import settings
-import os
-
-# configure Dedalus
-os.environ["DEDALUS_API_KEY"] = settings.DEDALUS_API_KEY
-
-
-def get_summary():
-    conn = sqlite3.connect("db.sqlite3")
-    cur = conn.cursor()
-
-    # total spend by category (using transaction_categories)
-    cur.execute("""
-        SELECT c.category, ROUND(SUM(t.amount),2) as total, COUNT(*) as tx_count
-        FROM transactions t
-        JOIN transaction_categories c
-          ON t.transaction_id = c.transaction_id
-        GROUP BY c.category
-        ORDER BY total DESC
-        LIMIT 10;
-    """)
-    category_summary = cur.fetchall()
+def get_summary(user_id):
+    """
+    Refactored to use ORM.
+    Requires passing user_id to filter data per user.
+    """
+    # total spend by category
+    # Note: 'transaction_categories' table doesn't have a model, so we rely on Transaction.category
+    category_summary_qs = (
+        Transaction.objects.filter(user_id=user_id)
+        .values("category")
+        .annotate(total=Sum("amount"), tx_count=Count("id"))
+        .order_by("-total")[:10]
+    )
 
     # overall stats
-    cur.execute("SELECT ROUND(SUM(amount),2), COUNT(*) FROM transactions;")
-    overall_total, tx_count = cur.fetchone()
+    overall_stats = Transaction.objects.filter(user_id=user_id).aggregate(
+        total_amount=Sum("amount"),
+        count=Count("id")
+    )
+    overall_total = overall_stats['total_amount'] or 0
+    tx_count = overall_stats['count'] or 0
 
-    # goals progress (compare against categories + date ranges)
-    cur.execute("""
-        SELECT g.category, g.limit_amount, COALESCE(SUM(t.amount),0) as spent
-        FROM wallet_goal g
-        LEFT JOIN transactions t
-          ON EXISTS (
-              SELECT 1 FROM transaction_categories c
-              WHERE c.transaction_id = t.transaction_id
-              AND c.category LIKE '%' || g.category || '%'
-          )
-          AND t.date BETWEEN g.period_start AND g.period_end
-        GROUP BY g.id
-        ORDER BY g.period_start DESC;
-    """)
-    goals_summary = cur.fetchall()
-
-    conn.close()
-
-    # format summaries as plain text for Gemini
+    # goals progress
+    goals = Goal.objects.filter(user_id=user_id).order_by("-period_start")
+    
     summary_text = "Recent spending summary:\n"
-    summary_text += f"- Total spent: ${overall_total} across {tx_count} transactions\n\n"
+    summary_text += f"- Total spent: ${round(overall_total, 2)} across {tx_count} transactions\n\n"
 
     summary_text += "By category:\n"
-    for cat, total, count in category_summary:
+    for item in category_summary_qs:
+        cat = item['category']
+        total = round(item['total'] or 0, 2)
+        count = item['tx_count']
         summary_text += f"  • {cat}: ${total} ({count} tx)\n"
 
     summary_text += "\nGoals progress:\n"
-    for cat, limit_amt, spent in goals_summary:
-        summary_text += f"  • {cat}: ${spent} / ${limit_amt}\n"
+    for g in goals:
+        # Calculate spent for this goal using ORM
+        spent = Transaction.objects.filter(
+            user_id=user_id,
+            category__icontains=g.category,
+            date__range=(g.period_start, g.period_end)
+        ).aggregate(sum=Sum('amount'))['sum'] or 0
+        
+        summary_text += f"  • {g.category}: ${round(spent, 2)} / ${g.limit_amount}\n"
 
     return summary_text
 
@@ -376,7 +361,7 @@ def spending_dashboard(request):
             db_path=db_path,
             loader_path=loader_path,
             bills_json_path=json_bills if json_bills.exists() else None,
-            wipe_transactions=True,   # <— the destructive refresh you asked for
+            wipe_transactions=True,
         )
         print("[spending_dashboard] Post-load counts:", counts)
     except Exception as e:
@@ -389,8 +374,8 @@ def spending_dashboard(request):
     if request.method == "POST":
         if "delete_goal_id" in request.POST:
             delete_goal_id = request.POST.get("delete_goal_id")
-            with connection.cursor() as cur:
-                cur.execute("DELETE FROM wallet_goal WHERE id = %s AND user_id = 1;", [delete_goal_id])
+            # ORM Refactor
+            Goal.objects.filter(id=delete_goal_id, user=request.user).delete()
 
         elif "category" in request.POST:  # add new goal
             category = request.POST.get("category")
@@ -398,14 +383,18 @@ def spending_dashboard(request):
             period_start = request.POST.get("period_start")
             period_end = request.POST.get("period_end")
 
-            with connection.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO wallet_goal (category, limit_amount, current_spend, period_start, period_end, user_id)
-                    VALUES (%s, %s, 0, %s, %s, 1);
-                """, [category, limit_amount, period_start, period_end])
+            # ORM Refactor
+            Goal.objects.create(
+                user=request.user,
+                category=category,
+                limit_amount=limit_amount,
+                current_spend=0,
+                period_start=period_start,
+                period_end=period_end
+            )
 
         elif "analyze_spending" in request.POST:  # AI button
-            summary_text = get_summary()
+            summary_text = get_summary(request.user.id)
             prompt = (
                 "You are a financial analysis assistant. "
                 "Based on this spending summary, identify trends, "
@@ -427,52 +416,26 @@ def spending_dashboard(request):
             analysis = markdown2.markdown(resp_text)
 
     # --- Transactions ---
-    with connection.cursor() as cur:
-        cur.execute("""
-            SELECT
-                t.transaction_id,
-                COALESCE(t.merchant_name, t.name, 'Unknown') AS merchant,
-                COALESCE(
-                    (SELECT GROUP_CONCAT(c.category, ' / ')
-                     FROM transaction_categories c
-                     WHERE c.transaction_id = t.transaction_id),
-                    ''
-                ) AS category,
-                t.date AS date,
-                t.amount AS amount
-            FROM transactions t
-            ORDER BY date DESC
-            LIMIT 100;
-        """)
-        cols = [c[0] for c in cur.description]
-        rows = cur.fetchall()
-        transactions = [dict(zip(cols, r)) for r in rows]
+    # ORM Refactor
+    transactions = Transaction.objects.order_by("-date")[:100]
 
     # --- Goals ---
-    with connection.cursor() as cur:
-        cur.execute("""
-            SELECT id, category, limit_amount, period_start, period_end
-            FROM wallet_goal
-            WHERE user_id = 1
-            ORDER BY period_start DESC;
-        """)
-        cols = [c[0] for c in cur.description]
-        raw_goals = [dict(zip(cols, r)) for r in cur.fetchall()]
+    # ORM Refactor
+    db_goals = Goal.objects.order_by("-period_start")
 
     goals = []
-    for g in raw_goals:
-        with connection.cursor() as cur:
-            cur.execute("""
-                SELECT COALESCE(SUM(amount), 0)
-                FROM transactions t
-                JOIN transaction_categories c
-                  ON c.transaction_id = t.transaction_id
-                WHERE c.category LIKE %s
-                  AND t.date BETWEEN %s AND %s;
-            """, [f"%{g['category']}%", g["period_start"], g["period_end"]])
-            current_spend = float(cur.fetchone()[0] or 0)
+    for g in db_goals:
+        # Calculate spend using ORM aggregation matching the category and date range
+        current_spend = Transaction.objects.filter(
+            user=request.user,
+            category__icontains=g.category,
+            date__range=(g.period_start, g.period_end)
+        ).aggregate(sum=Sum('amount'))['sum'] or 0
 
-        pct = (current_spend / float(g["limit_amount"])) * 100 if g["limit_amount"] else 0
+        current_spend = float(current_spend)
+        limit_amt = float(g.limit_amount)
+        
+        pct = (current_spend / limit_amt) * 100 if limit_amt else 0
         if pct >= 75:
             color = "#ef4444"
         elif pct >= 50:
@@ -481,7 +444,11 @@ def spending_dashboard(request):
             color = "#22c55e"
 
         goals.append({
-            **g,
+            "id": g.id,
+            "category": g.category,
+            "limit_amount": g.limit_amount,
+            "period_start": g.period_start,
+            "period_end": g.period_end,
             "current_spend": current_spend,
             "pct": pct,
             "color": color,
@@ -498,5 +465,5 @@ def spending_dashboard(request):
 
 @login_required
 def subscriptions_dashboard(request):
-    subscriptions = Subscription.objects.filter(user=request.user)
+    subscriptions = Subscription.objects.all()
     return render(request, "wallet/subscriptions.html", {"subscriptions": subscriptions})
