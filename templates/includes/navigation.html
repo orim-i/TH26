@@ -36,20 +36,24 @@
             <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
               <div class="dropdown-header d-flex align-items-center justify-content-between">
                 <h5 class="m-0">Notifications</h5>
-                <a href="#!" class="btn btn-link btn-sm">Mark all read</a>
               </div>
               <div class="dropdown-body text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px); overflow-y: auto;">
                 <p class="text-span">Today</p>
                 {% if spending_alerts %}
                   {% for alert in spending_alerts %}
-                  <div class="card mb-2">
+                  <div class="card mb-2 spending-alert-item" data-alert-id="{{ alert.goal_id }}:{{ alert.threshold }}">
                     <div class="card-body">
-                      <p class="mb-1">
-                        {{ alert.category }}: {{ alert.percent }}% of limit
-                      </p>
-                      <span class="badge bg-{{ alert.level }}">
-                        {{ alert.threshold }}+ reached
-                      </span>
+                      <div class="d-flex align-items-start justify-content-between gap-2">
+                        <div>
+                          <p class="mb-1">
+                            {{ alert.category }}: {{ alert.percent }}% of limit
+                          </p>
+                          <span class="badge bg-{{ alert.level }}">
+                            {{ alert.threshold }}+ reached
+                          </span>
+                        </div>
+                        <button type="button" class="btn-close js-dismiss-alert" aria-label="Close"></button>
+                      </div>
                     </div>
                   </div>
                   {% endfor %}
@@ -62,7 +66,7 @@
                 {% endif %}
               </div>
               <div class="text-center py-2">
-                <a href="#!" class="link-danger">Clear all Notifications</a>
+                <a href="#!" class="link-danger" id="clearNotificationsBtn">Clear all Notifications</a>
               </div>
             </div>
         </div>
@@ -252,6 +256,72 @@
         display: block;
       }
     </style>
+
+    <script>
+      (function () {
+        const storageKey = "spending_alerts_dismissed_ids";
+        const badge = document.querySelector(".pc-h-badge");
+        const alertItems = Array.from(document.querySelectorAll(".spending-alert-item"));
+        const clearBtn = document.getElementById("clearNotificationsBtn");
+
+        function loadDismissed() {
+          try {
+            return new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
+          } catch (e) {
+            return new Set();
+          }
+        }
+
+        function saveDismissed(set) {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(Array.from(set)));
+          } catch (e) {}
+        }
+
+        function updateBadge() {
+          const visibleCount = alertItems.filter((el) => !el.classList.contains("d-none")).length;
+          if (badge) {
+            badge.textContent = String(visibleCount);
+            badge.classList.toggle("bg-danger", visibleCount > 0);
+            badge.classList.toggle("bg-success", visibleCount === 0);
+          }
+        }
+
+        const dismissed = loadDismissed();
+        alertItems.forEach((el) => {
+          const id = el.getAttribute("data-alert-id");
+          if (id && dismissed.has(id)) {
+            el.classList.add("d-none");
+          }
+          const closeBtn = el.querySelector(".js-dismiss-alert");
+          if (closeBtn) {
+            closeBtn.addEventListener("click", function () {
+              if (id) {
+                dismissed.add(id);
+                saveDismissed(dismissed);
+              }
+              el.classList.add("d-none");
+              updateBadge();
+            });
+          }
+        });
+
+        if (clearBtn) {
+          clearBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            alertItems.forEach((el) => el.classList.add("d-none"));
+            alertItems.forEach((el) => {
+              const id = el.getAttribute("data-alert-id");
+              if (id) dismissed.add(id);
+            });
+            saveDismissed(dismissed);
+            updateBadge();
+          });
+        }
+
+        updateBadge();
+      })();
+    </script>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {

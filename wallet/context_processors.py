@@ -21,6 +21,7 @@ def spending_notifications(request):
             )
             goals = [
                 {
+                    "id": row[0],
                     "category": row[1],
                     "limit_amount": row[2],
                     "period_start": row[3],
@@ -31,6 +32,7 @@ def spending_notifications(request):
             ]
 
     for goal in goals:
+        goal_id = goal.id if hasattr(goal, "id") else goal.get("id")
         category = goal.category if hasattr(goal, "category") else goal.get("category")
         limit_amount = float(
             goal.limit_amount if hasattr(goal, "limit_amount") else goal.get("limit_amount") or 0
@@ -76,6 +78,7 @@ def spending_notifications(request):
 
         alerts.append(
             {
+                "goal_id": goal_id,
                 "category": category,
                 "percent": round(percent),
                 "threshold": threshold,
