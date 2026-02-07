@@ -105,7 +105,10 @@
                 </div>
                 <div class="card-body" style="padding:0 25px;">
                     <div class="earning-text mb-0">
-                    <h3 class="mb-2 text-black f-w-300">$4295.36 <i class="feather icon-arrow-up teal accent-3"></i></h3>
+                    <div class="text-xs text-uppercase opacity-60">Current Week</div>
+                    <h3 class="mb-2 text-black f-w-300">${{ current_week_spent|floatformat:2 }}</h3>
+                    <div class="text-xs text-uppercase opacity-60">Previous Week</div>
+                    <h4 class="mb-2 text-black f-w-300">${{ previous_week_spent|floatformat:2 }}</h4>
                     </div>
                     <div id="Widget-line-chart" class="WidgetlineChart2 ChartShadow" style="height:180px;"></div>
                 </div>
