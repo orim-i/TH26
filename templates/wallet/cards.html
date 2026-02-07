@@ -139,7 +139,7 @@
   <div id="cardView" class="row g-4" style="display: none;">
     {% for c in cards|dictsort:"annual_fee" %}
     <div class="col-md-6">
-      <div class="card card-standard card-metal" id="{{ c.card_name|slugify }}" style="border-radius:14px;">
+      <div class="card card-standard card-metal" id="{{ c.card_name|slugify }}" data-card-key="{{ c.id }}-{{ c.card_name|slugify }}" style="border-radius:14px;">
         <div class="card-body">
           <!-- Card Header -->
           <div class="d-flex align-items-start justify-content-between">
@@ -255,13 +255,24 @@
     }
   }
 
-  // Randomly assign metallic theme per card (gold/silver/black)
-  (function applyRandomMetalThemes() {
+  // Deterministic 1/3 split by card key (stable across reloads)
+  (function applyMetalThemesStable() {
     const variants = ["card-gold", "card-silver", "card-black"];
     const cards = document.querySelectorAll(".card-metal");
+
+    function hashString(s) {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) {
+        h = ((h << 5) - h) + s.charCodeAt(i);
+        h |= 0; // 32-bit
+      }
+      return Math.abs(h);
+    }
+
     cards.forEach((el) => {
-      const pick = variants[Math.floor(Math.random() * variants.length)];
-      el.classList.add(pick);
+      const key = el.getAttribute("data-card-key") || el.id || "";
+      const idx = hashString(key) % variants.length;
+      el.classList.add(variants[idx]);
     });
   })();
 </script>
