@@ -22,6 +22,17 @@
     <div class="text-end">
       <div class="text-uppercase small text-muted">Total Annual Fee</div>
       <div class="fs-4 fw-semibold">${{ total_fee|floatformat:2 }}</div>
+      <!-- View Toggle -->
+      <div class="mt-2 mb-2">
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary active" id="listViewBtn" onclick="switchView('list')">
+            <i class="bi bi-list-ul me-1"></i> List
+          </button>
+          <button type="button" class="btn btn-outline-primary" id="cardViewBtn" onclick="switchView('card')">
+            <i class="bi bi-grid-3x2-gap me-1"></i> Cards
+          </button>
+        </div>
+      </div>
       <!-- Add Card Button -->
       <div class="mt-2">
         <a href="{% url 'add_card' %}" class="btn btn-primary btn-sm">
@@ -33,7 +44,7 @@
 
 
   <!-- Card List Links -->
-  <div class="list-group mb-4">
+  <div id="listView" class="list-group mb-4">
     {% if cards %}
       {% for c in cards %}
         <a href="#{{ c.card_name|slugify }}" class="list-group-item list-group-item-action">
@@ -47,7 +58,7 @@
   </div>
 
   <!-- Cards Grid -->
-  <div class="row g-4">
+  <div id="cardView" class="row g-4" style="display: none;">
     {% for c in cards|dictsort:"annual_fee" %}
     <div class="col-md-6">
       <div class="card card-standard" id="{{ c.card_name|slugify }}" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
@@ -143,43 +154,27 @@
     {% endfor %}
   </div>
 
-  <!-- Bar Chart -->
-  <div class="row mt-5">
-    <div class="col-12">
-      <canvas id="feeBarChart" height="100"></canvas>
-    </div>
-  </div>
 </div>
 
-<!-- Chart.js Script -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- View Toggle Script -->
 <script>
-  const cardData = [
-    {% for c in cards|dictsort:"annual_fee" %}
-      {name: "{{ c.card_name|escapejs }}", fee: {{ c.annual_fee|floatformat:2 }}},
-    {% endfor %}
-  ];
-  const cardNames = cardData.map(c => c.name);
-  const cardFees = cardData.map(c => c.fee);
+  function switchView(view) {
+    const listView = document.getElementById('listView');
+    const cardView = document.getElementById('cardView');
+    const listBtn = document.getElementById('listViewBtn');
+    const cardBtn = document.getElementById('cardViewBtn');
 
-  const ctx = document.getElementById('feeBarChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: cardNames,
-      datasets: [{
-        label: 'Annual Fee ($)',
-        data: cardFees,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      scales: { x: { beginAtZero: true } },
-      plugins: { legend: { display: false }, title: { display: true, text: 'Annual Fee by Card' } }
+    if (view === 'list') {
+      listView.style.display = 'block';
+      cardView.style.display = 'none';
+      listBtn.classList.add('active');
+      cardBtn.classList.remove('active');
+    } else {
+      listView.style.display = 'none';
+      cardView.style.display = 'flex';
+      listBtn.classList.remove('active');
+      cardBtn.classList.add('active');
     }
-  });
+  }
 </script>
 {% endblock %}

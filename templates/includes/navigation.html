@@ -3,47 +3,24 @@
 
 <header class="new-header">
     <div class="d-flex align-items-center justify-content-between"> <!-- [Mobile Media Block] start -->
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center" style="flex: 1;">
         <ul class="list-unstyled">
-          <!-- ======= Menu collapse Icon ===== -->
-          <!--
-          <li class="pc-h-item pc-sidebar-collapse">
-            <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
-              <i data-feather="menu"></i>
-            </a>
-          </li>
-          
-          <li class="pc-h-item pc-sidebar-popup">
-            <a href="#" class="pc-head-link ms-0" id="mobile-collapse">
-              <i data-feather="menu"></i>
-            </a>
-          </li>
-          -->
-<!--
-          <li class="dropdown pc-h-item">
-            <a
-              class="pc-head-link dropdown-toggle arrow-none m-0 trig-drp-search"
-              data-bs-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="false"
-              aria-expanded="false"
-            >
-              <i data-feather="search"></i>
-            </a>
-            <div class="dropdown-menu pc-h-dropdown drp-search">
-              <form class="px-3 py-2">
-                <input type="search" class="form-control border-0 shadow-none" placeholder="Search here. . ." />
-              </form>
-            </div>
-          </li>
-        -->
-          
+          <!-- Left side - empty or add menu items if needed -->
         </ul>
       </div>
       <!-- [Mobile Media Block end] -->
 
-      <div class="ms-auto">
+      <!-- Center Logo -->
+      <div class="d-flex justify-content-center align-items-center" style="flex: 1;">
+        <a href="{% url 'dashboard' %}" class="navbar-brand-center">
+          <img src="{% static '/img/trove_logo.png' %}"
+               alt="Trove Logo"
+               style="height: 60px; width: auto; display: block;">
+        </a>
+      </div>
+
+      <!-- Right side icons -->
+      <div class="d-flex align-items-center justify-content-end" style="flex: 1;">
         <ul class="list-unstyled">
           <li class="dropdown pc-h-item">
             <a
@@ -231,4 +208,199 @@
         </ul>
       </div>
     </div>
+
+    <!-- Horizontal Tabs Navigation -->
+    <div class="horizontal-tabs-nav">
+      <nav class="tabs-container">
+        <a href="{% url 'dashboard' %}" class="tab-item">
+          <span class="tab-text">Dashboard</span>
+          <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+        </a>
+        <a href="{% url 'cards' %}" class="tab-item">
+          <span class="tab-text">My Cards</span>
+          <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+        </a>
+        <a href="{% url 'deals' %}" class="tab-item">
+          <span class="tab-text">Deals</span>
+          <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+        </a>
+        <a href="{% url 'goals' %}" class="tab-item">
+          <span class="tab-text">Goals</span>
+          <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+        </a>
+        <a href="{% url 'subscriptions' %}" class="tab-item">
+          <span class="tab-text">Subscriptions</span>
+          <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+        </a>
+      </nav>
+    </div>
+
+    <style>
+      .horizontal-tabs-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      .tabs-container {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      .tab-item {
+        flex: 1;
+        text-align: center;
+        padding: 20px 30px;
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        z-index: 1;
+      }
+
+      .tab-item:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .tab-text {
+        display: inline-block;
+        position: relative;
+        z-index: 2;
+      }
+
+      .coin-animation {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        opacity: 0;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Hover animation - coin falls and disappears */
+      .tab-item:hover:not(.active) .coin-animation {
+        animation: coinFallHover 0.8s ease-in-out;
+      }
+
+      @keyframes coinFallHover {
+        0% {
+          opacity: 0;
+          top: -40px;
+          transform: translateX(-50%);
+        }
+        20% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          top: 48px;
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Active tab styles */
+      .tab-item.active {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      /* Yellow border as pseudo-element to layer above coin */
+      .tab-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #ffd700;
+        z-index: 2;
+      }
+
+      /* Active tab coin - stays at half position */
+      .tab-item.active .coin-animation {
+        opacity: 1;
+        top: 43px;
+        animation: coinFallActive 0.6s ease-out forwards;
+      }
+
+      @keyframes coinFallActive {
+        0% {
+          opacity: 0;
+          top: -40px;
+          transform: translateX(-50%);
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          top: 43px;
+          transform: translateX(-50%);
+        }
+      }
+
+      /* Leaving active tab - coin finishes falling */
+      .tab-item.leaving .coin-animation {
+        animation: coinFallComplete 0.4s ease-in forwards;
+      }
+
+      @keyframes coinFallComplete {
+        0% {
+          opacity: 1;
+          top: 43px;
+          transform: translateX(-50%);
+        }
+        100% {
+          opacity: 0;
+          top: 48px;
+          transform: translateX(-50%);
+        }
+      }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.tab-item');
+        const currentPath = window.location.pathname;
+
+        // Set initial active tab based on current URL
+        tabs.forEach(tab => {
+          const tabPath = new URL(tab.href).pathname;
+          if (tabPath === currentPath) {
+            tab.classList.add('active');
+          }
+        });
+
+        // Handle tab clicks
+        tabs.forEach(tab => {
+          tab.addEventListener('click', function(e) {
+            // Find currently active tab
+            const currentActive = document.querySelector('.tab-item.active');
+
+            if (currentActive && currentActive !== this) {
+              // Add leaving class to current active tab
+              currentActive.classList.add('leaving');
+
+              // Remove active and leaving classes after animation
+              setTimeout(() => {
+                currentActive.classList.remove('active', 'leaving');
+              }, 400);
+            }
+
+            // Don't add active class here - let page navigation handle it
+          });
+        });
+      });
+    </script>
 </header>
