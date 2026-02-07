@@ -534,6 +534,19 @@ def spending_dashboard(request):
 
     # Subscriptions panel data (read-only, no DB writes)
     subs_qs = Subscription.objects.filter(user=request.user)
+    def _manage_url(merchant: str) -> str:
+        if not merchant:
+            return ""
+        m = merchant.lower()
+        if "spotify" in m:
+            return "https://www.spotify.com/account/overview/"
+        if "netflix" in m:
+            return "https://www.netflix.com/YourAccount"
+        if "amazon" in m:
+            return "https://www.amazon.com/gp/help/customer/display.html?nodeId=GTJQ7QZY7QL2HK4Y"
+        if "openai" in m or "chatgpt" in m:
+            return "https://chatgpt.com/account/manage"
+        return ""
     subscriptions = []
     if subs_qs.exists():
         for s in subs_qs:
@@ -546,18 +559,20 @@ def spending_dashboard(request):
                 "usage_score": None,
                 "prev_amount": None,
                 "current_amount": float(s.amount),
+                "manage_url": _manage_url(s.merchant),
             })
     else:
         subscriptions = [
             {
                 "merchant": "Spotify",
-                "amount": 13.00,
+                "amount": 12.99,
                 "billing_cycle": "monthly",
                 "next_payment_date": date.today() + timedelta(days=6),
                 "last_used_date": date.today() - timedelta(days=4),
                 "usage_score": 72,
-                "prev_amount": 12.00,
-                "current_amount": 13.00,
+                "prev_amount": 11.99,
+                "current_amount": 12.99,
+                "manage_url": _manage_url("Spotify"),
             },
             {
                 "merchant": "Netflix",
@@ -568,16 +583,18 @@ def spending_dashboard(request):
                 "usage_score": 81,
                 "prev_amount": None,
                 "current_amount": 15.49,
+                "manage_url": _manage_url("Netflix"),
             },
             {
-                "merchant": "Apple iCloud+",
-                "amount": 2.99,
+                "merchant": "OpenAI",
+                "amount": 19.99,
                 "billing_cycle": "monthly",
                 "next_payment_date": date.today() + timedelta(days=24),
                 "last_used_date": date.today() - timedelta(days=15),
                 "usage_score": 35,
                 "prev_amount": None,
-                "current_amount": 2.99,
+                "current_amount": 19.99,
+                "manage_url": _manage_url("OpenAI"),
             },
         ]
 
@@ -599,6 +616,20 @@ def spending_dashboard(request):
 def subscriptions_dashboard(request):
     subs_qs = Subscription.objects.filter(user=request.user)
 
+    def _manage_url(merchant: str) -> str:
+        if not merchant:
+            return ""
+        m = merchant.lower()
+        if "spotify" in m:
+            return "https://www.spotify.com/account/overview/"
+        if "netflix" in m:
+            return "https://www.netflix.com/YourAccount"
+        if "amazon" in m:
+            return "https://www.amazon.com/gp/help/customer/display.html?nodeId=GTJQ7QZY7QL2HK4Y"
+        if "openai" in m or "chatgpt" in m:
+            return "https://chatgpt.com/account/manage"
+        return ""
+
     subscriptions = []
     if subs_qs.exists():
         for s in subs_qs:
@@ -611,19 +642,21 @@ def subscriptions_dashboard(request):
                 "usage_score": None,
                 "prev_amount": None,
                 "current_amount": float(s.amount),
+                "manage_url": _manage_url(s.merchant),
             })
     else:
         # Sample data for UI preview
         subscriptions = [
             {
                 "merchant": "Spotify",
-                "amount": 13.00,
+                "amount": 12.99,
                 "billing_cycle": "monthly",
                 "next_payment_date": date.today() + timedelta(days=6),
                 "last_used_date": date.today() - timedelta(days=4),
                 "usage_score": 72,
-                "prev_amount": 12.00,
-                "current_amount": 13.00,
+                "prev_amount": 11.99,
+                "current_amount": 12.99,
+                "manage_url": _manage_url("Spotify"),
             },
             {
                 "merchant": "Netflix",
@@ -634,16 +667,18 @@ def subscriptions_dashboard(request):
                 "usage_score": 81,
                 "prev_amount": None,
                 "current_amount": 15.49,
+                "manage_url": _manage_url("Netflix"),
             },
             {
-                "merchant": "Apple iCloud+",
-                "amount": 2.99,
+                "merchant": "OpenAI",
+                "amount": 19.99,
                 "billing_cycle": "monthly",
                 "next_payment_date": date.today() + timedelta(days=24),
                 "last_used_date": date.today() - timedelta(days=15),
                 "usage_score": 35,
                 "prev_amount": None,
-                "current_amount": 2.99,
+                "current_amount": 19.99,
+                "manage_url": _manage_url("OpenAI"),
             },
             {
                 "merchant": "Amazon Prime",
@@ -654,6 +689,7 @@ def subscriptions_dashboard(request):
                 "usage_score": 22,
                 "prev_amount": None,
                 "current_amount": 14.99,
+                "manage_url": _manage_url("Amazon Prime"),
             },
         ]
 
