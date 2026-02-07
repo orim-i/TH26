@@ -1,0 +1,86 @@
+ [
+  {
+    "merchant": "NOBULL",
+    "deal_type": "shopping",
+    "reward_rate": null,
+    "offer": "$20 cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "Lyft",
+    "deal_type": "travel",
+    "reward_rate": 10,
+    "offer": "10% cash back",
+    "expiry_date": "2026-03-14"
+  },
+  {
+    "merchant": "Fragrance.com",
+    "deal_type": "shopping",
+    "reward_rate": 6,
+    "offer": "6% cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "NordicTrack",
+    "deal_type": "shopping",
+    "reward_rate": 5,
+    "offer": "5% cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "SkinCeuticals",
+    "deal_type": "shopping",
+    "reward_rate": 10,
+    "offer": "10% cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "Lululemon",
+    "deal_type": "shopping",
+    "reward_rate": 10,
+    "offer": "10% back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "fuboTV",
+    "deal_type": "entertainment",
+    "reward_rate": 35,
+    "offer": "35% cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "Sam's Club",
+    "deal_type": "shopping",
+    "reward_rate": 30,
+    "offer": "30% cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "Stitch Fix",
+    "deal_type": "shopping",
+    "reward_rate": null,
+    "offer": "$12 cash back",
+    "expiry_date": "2026-02-28"
+  },
+  {
+    "merchant": "Solgaard",
+    "deal_type": "shopping",
+    "reward_rate": 20,
+    "offer": "20% cash back",
+    "expiry_date": "2026-02-14"
+  },
+  {
+    "merchant": "The Bouqs Co.",
+    "deal_type": "shopping",
+    "reward_rate": 10,
+    "offer": "10% cash back",
+    "expiry_date": "2026-02-09"
+  },
+  {
+    "merchant": "Visible by Verizon",
+    "deal_type": "shopping",
+    "reward_rate": 25,
+    "offer": "25% cash back",
+    "expiry_date": "2026-02-28"
+  }
+]

@@ -125,19 +125,49 @@
   const allDeals = (window._deals = window._deals || []).filter(Boolean);
 
   function getTag(d){
-    const t = (d.type || '').toLowerCase();
-    if(t === 'welcome') return 'Welcome';
-    if(t === 'perk') return 'Perk';
-    if(t.includes('travel')) return 'Travel';
-    if(t.includes('dining') || t.includes('food')) return 'Food';
-    if(t.includes('offer') || t.includes('deal')) return 'Offers';
-    if(t === 'category') {
-      if(d.title.includes('Travel')) return 'Travel';
-      if(d.title.includes('Cheap')) return 'Cheap';
-      return 'Food/Entertainment';
-    }
-    return 'Offers'; 
-  }
+  const merchant = (d.title || '').toLowerCase();
+  const type = (d.type || '').toLowerCase();
+
+  // Travel
+  if (
+    type.includes('travel') ||
+    merchant.includes('lyft') ||
+    merchant.includes('uber') ||
+    merchant.includes('airbnb') ||
+    merchant.includes('hotel') ||
+    merchant.includes('flight') ||
+    merchant.includes('gas') ||
+    merchant.includes('charging')
+  ) return 'Travel';
+
+  // Food
+  if (
+    type.includes('food') ||
+    type.includes('dining') ||
+    merchant.includes('bouqs') ||
+    merchant.includes('restaurant') ||
+    merchant.includes('dining') ||
+    merchant.includes('eat') ||
+    merchant.includes('grocery') ||
+    merchant.includes('market') ||
+    merchant.includes('club') // e.g. Sam's Club
+  ) return 'Food';
+
+  // Entertainment
+  if (
+    type.includes('entertainment') ||
+    merchant.includes('fubo') ||
+    merchant.includes('netflix') ||
+    merchant.includes('hulu') ||
+    merchant.includes('disney') ||
+    merchant.includes('visible') ||
+    merchant.includes('tv') ||
+    merchant.includes('movie')
+  ) return 'Entertainment';
+
+  // Default fallback
+  return 'Other';
+}
 
   const tags = Array.from(new Set(allDeals.map(getTag))).sort();
 
@@ -197,19 +227,29 @@
       return;
     }
 
+    const now = new Date();
     grid.innerHTML = filtered.slice(0, 24).map(d => {
       const cap = [d.card, d.issuer].filter(Boolean).join(' • ');
       const exp = d.expires ? `Ends ${d.expires}` : ''; 
       const tag = getTag(d);
 
-      // No highlight for points/cash
+      // Calculate if expires within 30 days
+      let glowClass = '';
+      if (d.expires) {
+        const expDate = new Date(d.expires);
+        const diffDays = (expDate - now) / (1000 * 60 * 60 * 24);
+        if (diffDays >= 0 && diffDays <= 30) {
+          glowClass = 'deal-glow';
+        }
+      }
+
       const benefitHtml = d.benefit
         ? `<div class="mb-2">${d.benefit}</div>`
         : '';
 
       return `
         <div class="col-12 col-md-6">
-          <div class="card h-100" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
+          <div class="card h-100 ${glowClass}" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
             <div class="card-body">
               <div class="d-flex align-items-center justify-content-between mb-2">
                 <span class="badge bg-light border text-dark">${tag}</span>
@@ -251,4 +291,11 @@
   renderDeals();
 })();
 </script>
+
+<style>
+.deal-glow {
+  box-shadow: 0 0 0 4px #b3d8fd, 0 8px 24px -12px rgba(0,0,0,.15) !important;
+  border: 1.5px solid #2196f3 !important;
+}
+</style>
 {% endblock %}
