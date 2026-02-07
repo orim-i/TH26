@@ -196,9 +196,13 @@ def perks_dashboard(request):
                 ORDER BY expiry_date ASC, card_name ASC
             """)
             cols = [c[0] for c in cur.description]
-            deals = [dict(zip(cols, row)) for row in cur.fetchall()]
+            all_deals = [dict(zip(cols, row)) for row in cur.fetchall()]
         except Exception:
-            deals = []
+            all_deals = []
+
+    # Filter for only the selected merchants
+    selected_merchants = {"Solgaard", "The Bouqs Co.", "Visible by Verizon"}
+    deals = [d for d in all_deals if d["title"] in selected_merchants]
 
     issuers = sorted({(c["issuer"] or "").strip() for c in cards.values() if c["issuer"]})
     return render(request, "wallet/deals.html", {
