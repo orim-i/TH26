@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 import random
 from django.shortcuts import redirect
 from django.db import connection
-from wallet.models import Transaction, Card, Deal, Goal, Subscription
+from wallet.models import Card, Deal, Goal, Subscription
+from django.utils import timezone
 
 #from .models import *
 
@@ -106,13 +107,22 @@ def index(request):
 
   issuers = sorted({(c["issuer"] or "").strip() for c in cards.values() if c["issuer"]})
 
+  today = timezone.localdate().isoformat()
+  with connection.cursor() as cur:
+      cur.execute(
+          "SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE date = %s",
+          [today],
+      )
+      daily_spent = float(cur.fetchone()[0] or 0)
+  
   # all the deals stuff
   context = {
     'segment': 'dashboard',
     'daily_quote': daily_quote,
     'cards': list(cards.values()),
     'issuers': issuers,
-    'deals': deals
+    'deals': deals,
+    'daily_spent': daily_spent
   }
   return render(request, "pages/index.html", context)
 
