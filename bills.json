@@ -95,6 +95,236 @@
       "merchant_name": "Whole Foods Market",
       "category": ["Shops", "Groceries"],
       "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_1003",
+      "account_id": "acc_1",
+      "amount": 12.40,
+      "date": "2025-09-08",
+      "name": "Uber",
+      "merchant_name": "Uber",
+      "category": ["Travel", "Ride Share"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_1004",
+      "account_id": "acc_1",
+      "amount": 34.10,
+      "date": "2025-09-09",
+      "name": "CVS Pharmacy",
+      "merchant_name": "CVS",
+      "category": ["Health", "Pharmacy"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_1005",
+      "account_id": "acc_1",
+      "amount": 18.75,
+      "date": "2025-09-10",
+      "name": "Panera Bread",
+      "merchant_name": "Panera Bread",
+      "category": ["Food and Drink", "Fast Food"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_2003",
+      "account_id": "acc_2",
+      "amount": 9.99,
+      "date": "2025-09-11",
+      "name": "Apple iCloud+",
+      "merchant_name": "Apple",
+      "category": ["Service", "Subscription"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_2004",
+      "account_id": "acc_2",
+      "amount": 142.80,
+      "date": "2025-09-12",
+      "name": "Southwest Airlines",
+      "merchant_name": "Southwest",
+      "category": ["Travel", "Airlines"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_3004",
+      "account_id": "acc_3",
+      "amount": 7.25,
+      "date": "2025-09-13",
+      "name": "Blue Bottle Coffee",
+      "merchant_name": "Blue Bottle",
+      "category": ["Food and Drink", "Coffee Shop"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_3005",
+      "account_id": "acc_3",
+      "amount": 58.60,
+      "date": "2025-09-14",
+      "name": "Target",
+      "merchant_name": "Target",
+      "category": ["Shops", "Department Store"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_3006",
+      "account_id": "acc_3",
+      "amount": 22.95,
+      "date": "2025-09-15",
+      "name": "Amazon",
+      "merchant_name": "Amazon",
+      "category": ["Shops", "Online Marketplace"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_4001",
+      "account_id": "acc_1",
+      "amount": 16.80,
+      "date": "2026-01-24",
+      "name": "Sweetgreen",
+      "merchant_name": "Sweetgreen",
+      "category": ["Food and Drink", "Restaurant"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4002",
+      "account_id": "acc_2",
+      "amount": 48.25,
+      "date": "2026-01-25",
+      "name": "Trader Joe's",
+      "merchant_name": "Trader Joe's",
+      "category": ["Shops", "Groceries"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4003",
+      "account_id": "acc_1",
+      "amount": 11.40,
+      "date": "2026-01-26",
+      "name": "Starbucks",
+      "merchant_name": "Starbucks",
+      "category": ["Food and Drink", "Coffee Shop"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4004",
+      "account_id": "acc_3",
+      "amount": 72.10,
+      "date": "2026-01-27",
+      "name": "Target",
+      "merchant_name": "Target",
+      "category": ["Shops", "Department Store"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4005",
+      "account_id": "acc_2",
+      "amount": 29.75,
+      "date": "2026-01-28",
+      "name": "Chipotle",
+      "merchant_name": "Chipotle",
+      "category": ["Food and Drink", "Fast Food"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4006",
+      "account_id": "acc_1",
+      "amount": 9.60,
+      "date": "2026-01-29",
+      "name": "Blue Bottle",
+      "merchant_name": "Blue Bottle",
+      "category": ["Food and Drink", "Coffee Shop"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4007",
+      "account_id": "acc_3",
+      "amount": 95.00,
+      "date": "2026-01-30",
+      "name": "Delta Airlines",
+      "merchant_name": "Delta",
+      "category": ["Travel", "Airlines"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_4008",
+      "account_id": "acc_2",
+      "amount": 14.20,
+      "date": "2026-01-31",
+      "name": "CVS Pharmacy",
+      "merchant_name": "CVS",
+      "category": ["Health", "Pharmacy"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4009",
+      "account_id": "acc_1",
+      "amount": 64.90,
+      "date": "2026-02-01",
+      "name": "Whole Foods",
+      "merchant_name": "Whole Foods Market",
+      "category": ["Shops", "Groceries"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4010",
+      "account_id": "acc_3",
+      "amount": 7.95,
+      "date": "2026-02-02",
+      "name": "Peet's Coffee",
+      "merchant_name": "Peet's Coffee",
+      "category": ["Food and Drink", "Coffee Shop"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4011",
+      "account_id": "acc_2",
+      "amount": 18.50,
+      "date": "2026-02-03",
+      "name": "DoorDash",
+      "merchant_name": "DoorDash",
+      "category": ["Food and Drink", "Delivery"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_4012",
+      "account_id": "acc_1",
+      "amount": 26.30,
+      "date": "2026-02-04",
+      "name": "Uber",
+      "merchant_name": "Uber",
+      "category": ["Travel", "Ride Share"],
+      "payment_channel": "online"
+    },
+    {
+      "transaction_id": "txn_4013",
+      "account_id": "acc_3",
+      "amount": 120.00,
+      "date": "2026-02-05",
+      "name": "Marriott Hotel",
+      "merchant_name": "Marriott",
+      "category": ["Travel", "Lodging"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4014",
+      "account_id": "acc_2",
+      "amount": 8.60,
+      "date": "2026-02-06",
+      "name": "Starbucks",
+      "merchant_name": "Starbucks",
+      "category": ["Food and Drink", "Coffee Shop"],
+      "payment_channel": "in store"
+    },
+    {
+      "transaction_id": "txn_4015",
+      "account_id": "acc_1",
+      "amount": 52.40,
+      "date": "2026-02-07",
+      "name": "Target",
+      "merchant_name": "Target",
+      "category": ["Shops", "Department Store"],
+      "payment_channel": "in store"
     }
   ],
   "item": {
@@ -103,5 +333,5 @@
     "webhook": null
   },
   "request_id": "dummy_request_001",
-  "total_transactions": 7
+  "total_transactions": 30
 }
