@@ -16,10 +16,18 @@
     </div>
   </div>
 
-  <!-- Filter Options -->
-  <div class="mb-3">
-    <span class="fw-semibold me-2">Filter Deals:</span>
-    <div id="dealFilters" class="d-inline-block"></div>
+  <!-- Filter Row -->
+  <div class="row align-items-center mb-3">
+    <div class="col-auto fw-semibold">Filter Deals:</div>
+    <div class="col-auto">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dealFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Add Filter
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dealFilterDropdown" id="dealDropdownFilters"></ul>
+      </div>
+    </div>
+    <div class="col" id="activeFilters"></div>
   </div>
 
   <!-- Deals Grid -->
@@ -94,6 +102,7 @@
     if(d.type==='perk') return 'Perk';
     if(d.type==='category') {
       if(d.title.includes('Travel')) return 'Travel';
+      if(d.title.includes('Cheap')) return 'Cheap';
       return 'Food/Entertainment';
     }
     return 'Food/Entertainment';
@@ -101,34 +110,71 @@
 
   const tags = Array.from(new Set(allDeals.map(getTag)));
 
-  const filterContainer = document.getElementById('dealFilters');
-  filterContainer.innerHTML = '';
-  tags.forEach(tag=>{
-    const id = 'filter-'+tag.replace(/\s+/g, '');
-    filterContainer.innerHTML += `
-      <div class="form-check form-check-inline">
-        <input class="form-check-input deal-filter" type="checkbox" id="${id}" value="${tag}" checked>
-        <label class="form-check-label" for="${id}">${tag}</label>
-      </div>
-    `;
-  });
+  // Helper to parse date or return a far future date if missing
+  function parseExpiry(exp) {
+    if (!exp) return new Date('2099-12-31');
+    // Try to parse YYYY-MM-DD
+    const d = new Date(exp);
+    return isNaN(d.getTime()) ? new Date('2099-12-31') : d;
+  }
 
+  // Dropdown filter logic
+  const filterDropdown = document.getElementById('dealDropdownFilters');
+  const activeFiltersSpan = document.getElementById('activeFilters');
+  let activeFilters = [...tags]; // Start with all filters active
+
+  // Populate dropdown, removing already active filters
+  function renderDropdown() {
+    filterDropdown.innerHTML = '';
+    let added = false;
+    tags.forEach(tag => {
+      if (!activeFilters.includes(tag)) {
+        const id = 'filter-' + tag.replace(/\s+/g, '');
+        filterDropdown.innerHTML += `
+          <li>
+            <a class="dropdown-item" href="#" data-filter="${tag}" id="${id}">${tag}</a>
+          </li>
+        `;
+        added = true;
+      }
+    });
+    if (!added) {
+      filterDropdown.innerHTML = '<li class="dropdown-item text-muted" style="pointer-events:none;">No more filters</li>';
+    }
+  }
+
+  // Render active filter labels with x
+  function renderActiveFilters() {
+    activeFiltersSpan.innerHTML = activeFilters.map(tag => `
+      <span class="badge bg-light border text-dark me-1 mb-1" style="font-size:0.95em;">
+        ${tag}
+        <button type="button" class="btn btn-sm btn-close ms-1" aria-label="Remove" style="font-size:0.7em;vertical-align:middle;" data-remove-filter="${tag}"></button>
+      </span>
+    `).join('');
+  }
+
+  // Render deals
   function renderDeals() {
-    const checked = Array.from(document.querySelectorAll('.deal-filter:checked')).map(i=>i.value);
+    renderDropdown();
+    renderActiveFilters();
     const grid = document.getElementById('dealsGrid');
     const count = document.getElementById('dealCount');
+    const checked = activeFilters;
 
-    const filtered = allDeals.filter(d=> checked.includes(getTag(d)) );
+    // Sort deals by expiry date, closest first
+    const filtered = allDeals
+      .filter(d => checked.includes(getTag(d)))
+      .sort((a, b) => parseExpiry(a.expires) - parseExpiry(b.expires));
 
-    count.textContent = `${filtered.length} deal${filtered.length===1?'':'s'}`;
+    count.textContent = `${filtered.length} deal${filtered.length === 1 ? '' : 's'}`;
 
-    if(!filtered.length){
+    if (!filtered.length) {
       grid.innerHTML = '<div class="text-muted small">No current deals.</div>';
       return;
     }
 
-    grid.innerHTML = filtered.slice(0,24).map(d=>{
-      const cap = [d.card,d.issuer].filter(Boolean).join(' • ');
+    grid.innerHTML = filtered.slice(0, 24).map(d => {
+      const cap = [d.card, d.issuer].filter(Boolean).join(' • ');
       const exp = d.expires ? `Ends ${d.expires}` : '';
       const tag = getTag(d);
 
@@ -151,10 +197,26 @@
     }).join('');
   }
 
-  renderDeals();
-  document.querySelectorAll('.deal-filter').forEach(cb=>{
-    cb.addEventListener('change', renderDeals);
+  // Dropdown click to add filter
+  filterDropdown.addEventListener('click', function(e){
+    const tag = e.target.getAttribute('data-filter');
+    if(tag && !activeFilters.includes(tag)){
+      activeFilters.push(tag);
+      renderDeals();
+    }
+    e.preventDefault();
   });
+
+  // Remove filter with x button
+  activeFiltersSpan.addEventListener('click', function(e){
+    const tag = e.target.getAttribute('data-remove-filter');
+    if(tag){
+      activeFilters = activeFilters.filter(t => t !== tag);
+      renderDeals();
+    }
+  });
+
+  renderDeals();
 })();
 </script>
 {% endblock %}
