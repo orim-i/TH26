@@ -994,6 +994,28 @@ Top Spending Categories:"""
 @login_required
 def agent_wrapped(request):
     """Return the user's last 30 days of spending as a categorized 'wrapped' summary."""
+    # --- auto-sync Plaid Sandbox into SQLite (same as spending_dashboard) ---
+    try:
+        base = Path(settings.BASE_DIR)
+        json_plaid   = (base / "plaid_latest.json").resolve()
+        json_bills   = (base / "bills.json").resolve()
+        loader_path  = (base / "load_bills_to_sqlite.py").resolve()
+
+        if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
+            db_path = Path(settings.DATABASES["default"]["NAME"]).resolve()
+        else:
+            db_path = (base / "db.sqlite3").resolve()
+
+        sync_plaid_to_sqlite(
+            json_plaid_path=json_plaid,
+            db_path=db_path,
+            loader_path=loader_path,
+            bills_json_path=json_bills if json_bills.exists() else None,
+            wipe_transactions=True,
+        )
+    except Exception as e:
+        print("Plaid sandbox sync skipped (wrapped):", e)
+
     try:
         with connection.cursor() as cur:
             # Overall stats
@@ -1004,7 +1026,6 @@ def agent_wrapped(request):
                     COALESCE(AVG(amount), 0) as avg_amount,
                     COALESCE(MAX(amount), 0) as max_amount
                 FROM transactions
-                WHERE date >= date('now', '-30 days')
             """)
             row = cur.fetchone()
             tx_count, total_spending, avg_amount, max_amount = row
@@ -1014,7 +1035,6 @@ def agent_wrapped(request):
                 SELECT c.category, ROUND(SUM(t.amount), 2) as total, COUNT(*) as cnt
                 FROM transactions t
                 JOIN transaction_categories c ON t.transaction_id = c.transaction_id
-                WHERE t.date >= date('now', '-30 days')
                 GROUP BY c.category
                 ORDER BY total DESC
             """)
@@ -1025,9 +1045,9 @@ def agent_wrapped(request):
 
             # Top merchant by total spend
             cur.execute("""
-                SELECT merchant, ROUND(SUM(amount), 2) as total, COUNT(*) as cnt
+                SELECT COALESCE(merchant_name, name, 'Unknown') as merchant,
+                       ROUND(SUM(amount), 2) as total, COUNT(*) as cnt
                 FROM transactions
-                WHERE date >= date('now', '-30 days')
                 GROUP BY merchant
                 ORDER BY total DESC
                 LIMIT 1
@@ -1040,9 +1060,9 @@ def agent_wrapped(request):
 
             # Most frequent merchant
             cur.execute("""
-                SELECT merchant, COUNT(*) as cnt, ROUND(SUM(amount), 2) as total
+                SELECT COALESCE(merchant_name, name, 'Unknown') as merchant,
+                       COUNT(*) as cnt, ROUND(SUM(amount), 2) as total
                 FROM transactions
-                WHERE date >= date('now', '-30 days')
                 GROUP BY merchant
                 ORDER BY cnt DESC
                 LIMIT 1
@@ -1055,9 +1075,9 @@ def agent_wrapped(request):
 
             # Biggest single purchase
             cur.execute("""
-                SELECT merchant, amount, date
+                SELECT COALESCE(merchant_name, name, 'Unknown') as merchant,
+                       amount, date
                 FROM transactions
-                WHERE date >= date('now', '-30 days')
                 ORDER BY amount DESC
                 LIMIT 1
             """)
