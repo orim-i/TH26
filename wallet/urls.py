@@ -1,10 +1,11 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LoginView
+from apps.pages.views import index
 
 urlpatterns = [
     path("", LoginView.as_view(template_name="accounts/login.html"), name="login"),  # Root goes to login
-    path("dashboard/", views.dashboard, name="dashboard"),
+    path("dashboard/", index, name="dashboard"),
     path("cards/", views.cards_dashboard, name="cards"),
     path("cards/", views.cards_dashboard, name="cards_dashboard"),
     path("deals/", views.perks_dashboard, name="deals"),
