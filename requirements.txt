@@ -36,3 +36,4 @@ plaid-python>=36
 
 # Markdown rendering (pick one)
 Markdown>=3.5.0    # official Python Markdown library
+markdown2
