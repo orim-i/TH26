@@ -10,7 +10,7 @@
     </div>
     <div class="text-right">
       <div class="text-xs uppercase opacity-60">Budget (this period)</div>
-      <div class="text-2xl font-semibold">${{ 2000|default:2000 }}</div>
+      <div class="text-2xl font-semibold">${{ 4641|default:2000 }}</div>
     </div>
   </div>
 
@@ -182,7 +182,7 @@
   <!-- Recent Transactions -->
   <div class="rounded-2xl shadow-md p-6 bg-white/70 backdrop-blur border border-slate-100">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold">Recent Transactions</h2>
+      <h2 class="text-xl font-semibold">{% now "F" %} Transactions</h2>
       <div class="flex items-center" style="gap:.5rem">
         <button id="txToggleBtn" type="button"
                 class="px-3 py-2 rounded-xl border border-slate-200 shadow-md"
@@ -221,7 +221,7 @@
   <!-- Toggle button -->
   <button @click="open = !open"
           class="w-full flex items-center justify-between px-5 py-3 rounded-xl border border-slate-300 shadow-sm bg-slate-50 hover:bg-slate-100 transition">
-    <span class="font-semibold text-slate-800">Analysis and New Budget Report: Recent Transactions</span>
+    <span class="font-semibold text-slate-800">Analysis and New Budget Report: {% now "F" %} Transactions</span>
     <svg :class="{'rotate-180': open}" class="w-5 h-5 text-slate-500 transition-transform" 
          fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -526,13 +526,24 @@
     return cardNames[idx] || '—';
   }
 
+  function isCurrentMonth(t){
+    const s = String(t.date || '');
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return false;
+    const year = Number(m[1]);
+    const month = Number(m[2]); // 1-12
+    const now = new Date();
+    return year === now.getFullYear() && month === (now.getMonth() + 1);
+  }
+
   function apply(){
     const key = sortKeyEl.value || 'date';
     const dir = sortDirEl.value || 'desc';
     const withCards = serverTx.map(t => ({ ...t, card: pickCardForTx(t) }));
     const sorted = sortRows(withCards, key, dir);
-    renderTable(sorted);
-    computeStats(sorted);
+    const monthRows = sorted.filter(isCurrentMonth);
+    renderTable(monthRows);
+    computeStats(monthRows);
     renderRecurringTransactions(withCards); // Use mapped data for recurring analysis
   }
 
