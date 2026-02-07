@@ -1,0 +1,271 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-6xl p-6">
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">AI Financial Agent</h1>
+      <p class="text-sm opacity-70">Ask me anything about your spending, budgets, or financial goals.</p>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="rounded-2xl shadow-md bg-white/70 backdrop-blur border border-slate-100 overflow-hidden" style="height: calc(100vh - 280px); display: flex; flex-direction: column;">
+
+    <!-- Chat Messages -->
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
+      <!-- Welcome Message -->
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+          AI
+        </div>
+        <div class="flex-1">
+          <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-4 border border-indigo-100">
+            <p class="text-sm text-slate-700">
+              👋 Hi! I'm your financial assistant. I can help you with:
+            </p>
+            <ul class="text-sm text-slate-700 mt-2 ml-4 list-disc space-y-1">
+              <li>Analyzing your recent spending patterns</li>
+              <li>Setting up budget plans for the month</li>
+              <li>Reviewing your credit card usage</li>
+              <li>Tracking your financial goals</li>
+            </ul>
+            <p class="text-sm text-slate-700 mt-3">
+              Try asking: <em>"Analyze my recent spending"</em> or <em>"Set a budget plan for this month"</em>
+            </p>
+          </div>
+          <div class="text-xs text-slate-400 mt-1 ml-1">Just now</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="border-t border-slate-200 p-4 bg-white/80">
+      <form id="chatForm" class="flex gap-3">
+        {% csrf_token %}
+        <input
+          type="text"
+          id="chatInput"
+          name="message"
+          placeholder="Type your question here..."
+          class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          id="sendBtn"
+          class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Chat-specific styles */
+  .mx-auto{margin-inline:auto}.max-w-6xl{max-width:72rem}
+  .p-6{padding:1.5rem}.p-4{padding:1rem}.p-3{padding:.75rem}
+  .mb-6{margin-bottom:1.5rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}
+  .text-3xl{font-size:1.75rem}.text-sm{font-size:.875rem}.text-xs{font-size:.75rem}
+  .font-bold{font-weight:800}.font-semibold{font-weight:700}
+  .opacity-70{opacity:.7}
+  .flex{display:flex}.flex-1{flex:1}.flex-shrink-0{flex-shrink:0}
+  .items-center{align-items:center}.items-start{align-items:start}
+  .justify-between{justify-content:space-between}
+  .gap-3{gap:.75rem}.gap-4{gap:1rem}
+  .space-y-1>*+*{margin-top:.25rem}.space-y-4>*+*{margin-top:1rem}
+  .rounded-2xl{border-radius:1rem}.rounded-xl{border-radius:.75rem}.rounded-full{border-radius:9999px}
+  .rounded-tl-none{border-top-left-radius:0}
+  .bg-white\/70{background:rgba(255,255,255,.7)}.bg-white\/80{background:rgba(255,255,255,.8)}
+  .bg-indigo-50{background:#eef2ff}.bg-indigo-500{background:#6366f1}.bg-indigo-600{background:#4f46e5}
+  .hover\:bg-indigo-700:hover{background:#4338ca}
+  .bg-slate-50{background:#f8fafc}.bg-slate-100{background:#f1f5f9}
+  .text-white{color:#fff}.text-slate-400{color:#94a3b8}.text-slate-700{color:#334155}
+  .border{border:1px solid}.border-t{border-top:1px solid}
+  .border-slate-100{border-color:#f1f5f9}.border-slate-200{border-color:#e2e8f0}
+  .border-indigo-100{border-color:#e0e7ff}
+  .shadow-md{box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)}
+  .overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}
+  .w-8{width:2rem}.h-8{height:2rem}
+  .px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}
+  .py-3{padding-top:.75rem;padding-bottom:.75rem}
+  .ml-1{margin-left:.25rem}.ml-4{margin-left:1rem}
+  .list-disc{list-style-type:disc}
+  .tracking-tight{letter-spacing:-.025em}
+  .transition{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:150ms}
+
+  /* User message styling */
+  .user-message {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    padding: 12px 16px;
+  }
+  .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    animation: typing 1.4s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+    30% { transform: translateY(-10px); opacity: 1; }
+  }
+</style>
+
+<script>
+(function() {
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const chatMessages = document.getElementById('chatMessages');
+  const sendBtn = document.getElementById('sendBtn');
+
+  // Scroll to bottom of chat
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Add user message to chat
+  function addUserMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'flex items-start gap-3 justify-end';
+    messageDiv.innerHTML = `
+      <div class="flex-1 flex justify-end">
+        <div class="max-w-2xl">
+          <div class="user-message rounded-2xl rounded-tr-none p-4">
+            <p class="text-sm">${escapeHtml(text)}</p>
+          </div>
+          <div class="text-xs text-slate-400 mt-1 mr-1 text-right">Just now</div>
+        </div>
+      </div>
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
+        You
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Add AI typing indicator
+  function addTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'typingIndicator';
+    typingDiv.className = 'flex items-start gap-3';
+    typingDiv.innerHTML = `
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+        AI
+      </div>
+      <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-2 border border-indigo-100">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    scrollToBottom();
+  }
+
+  // Remove typing indicator
+  function removeTypingIndicator() {
+    const typingDiv = document.getElementById('typingIndicator');
+    if (typingDiv) typingDiv.remove();
+  }
+
+  // Add AI response to chat
+  function addAIMessage(text) {
+    removeTypingIndicator();
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'flex items-start gap-3';
+    messageDiv.innerHTML = `
+      <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold">
+        AI
+      </div>
+      <div class="flex-1">
+        <div class="bg-indigo-50 rounded-2xl rounded-tl-none p-4 border border-indigo-100">
+          <p class="text-sm text-slate-700">${escapeHtml(text)}</p>
+        </div>
+        <div class="text-xs text-slate-400 mt-1 ml-1">Just now</div>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Handle form submission
+  chatForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // Add user message
+    addUserMessage(message);
+    chatInput.value = '';
+
+    // Disable input while processing
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+
+    // Show typing indicator
+    addTypingIndicator();
+
+    try {
+      // Get CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      // Send message to server
+      const response = await fetch('{% url "agent" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ message: message })
+      });
+
+      const data = await response.json();
+
+      if (data.response) {
+        addAIMessage(data.response);
+      } else if (data.error) {
+        addAIMessage('Sorry, I encountered an error: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      addAIMessage('Sorry, I encountered an error processing your request. Please try again.');
+    } finally {
+      // Re-enable input
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+  });
+
+  // Focus input on load
+  chatInput.focus();
+})();
+</script>
+
+{% endblock %}
