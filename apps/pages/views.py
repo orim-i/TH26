@@ -9,6 +9,8 @@ from django.shortcuts import redirect
 from django.db import connection
 from wallet.models import Card, Deal, Goal, Subscription
 from django.utils import timezone
+from datetime import timedelta
+import json
 
 #from .models import *
 
@@ -114,6 +116,26 @@ def index(request):
           [today],
       )
       daily_spent = float(cur.fetchone()[0] or 0)
+
+  # Past 7 days (including today) spending for the line chart
+  end_date = timezone.localdate()
+  start_date = end_date - timedelta(days=6)
+  date_keys = [(start_date + timedelta(days=i)).isoformat() for i in range(7)]
+  totals_by_date = {d: 0.0 for d in date_keys}
+  with connection.cursor() as cur:
+      cur.execute(
+          """
+          SELECT date, COALESCE(SUM(amount), 0)
+          FROM transactions
+          WHERE date BETWEEN %s AND %s
+          GROUP BY date
+          """,
+          [start_date.isoformat(), end_date.isoformat()],
+      )
+      for tx_date, total in cur.fetchall():
+          totals_by_date[str(tx_date)] = float(total or 0)
+  widget_line_categories = date_keys
+  widget_line_series = [totals_by_date[d] for d in date_keys]
   
   # all the deals stuff
   context = {
@@ -122,7 +144,9 @@ def index(request):
     'cards': list(cards.values()),
     'issuers': issuers,
     'deals': deals,
-    'daily_spent': daily_spent
+    'daily_spent': daily_spent,
+    'widget_line_categories': json.dumps(widget_line_categories),
+    'widget_line_series': json.dumps(widget_line_series),
   }
   return render(request, "pages/index.html", context)
 

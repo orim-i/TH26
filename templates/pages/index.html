@@ -101,12 +101,11 @@
             <div class="col-12 ms-2">
                 <div class="card bg-primary w-100">
                 <div class="card-header border-0">
-                    <h5 class="text-white">Savings</h5>
+                    <div class="text text-uppercase opacity-60 mb-6">Weekly Spending</div>
                 </div>
                 <div class="card-body" style="padding:0 25px;">
                     <div class="earning-text mb-0">
-                    <h3 class="mb-2 text-white f-w-300">$4295.36 <i class="feather icon-arrow-up teal accent-3"></i></h3>
-                    <span class="text-uppercase text-white d-block">Total Savings</span>
+                    <h3 class="mb-2 text-black f-w-300">$4295.36 <i class="feather icon-arrow-up teal accent-3"></i></h3>
                     </div>
                     <div id="Widget-line-chart" class="WidgetlineChart2 ChartShadow" style="height:180px;"></div>
                 </div>
@@ -473,6 +472,10 @@ cb.addEventListener('change', renderDeals);
 <script src="{% static "assets/js/plugins/apexcharts.min.js" %}"></script>
 <script src="{% static "assets/js/plugins/jsvectormap.min.js" %}"></script>
 <script src="{% static "assets/js/plugins/world.js" %}"></script>
+<script>
+  window.widgetLineCategories = {{ widget_line_categories|safe }};
+  window.widgetLineSeries = {{ widget_line_series|safe }};
+</script>
 <script src="{% static "assets/js/pages/dashboard-default.js" %}"></script>
 
 {% endblock extra_js %}
