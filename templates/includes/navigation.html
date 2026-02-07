@@ -236,10 +236,60 @@
     </div>
 
     <style>
+      /* Glass header styling */
+      .new-header {
+        background: linear-gradient(180deg,
+          rgba(255, 255, 255, 0.5) 0%,
+          rgba(250, 250, 255, 0.45) 100%
+        );
+        backdrop-filter: blur(15px) saturate(150%);
+        -webkit-backdrop-filter: blur(15px) saturate(150%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow:
+          0 4px 24px 0 rgba(31, 38, 135, 0.15),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+      }
+
       .horizontal-tabs-nav {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(240, 248, 255, 0.35) 25%,
+          rgba(250, 240, 255, 0.3) 50%,
+          rgba(255, 240, 245, 0.35) 75%,
+          rgba(255, 255, 255, 0.3) 100%
+        );
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
         padding: 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow:
+          0 8px 32px 0 rgba(31, 38, 135, 0.2),
+          inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+          inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.6);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        position: relative;
+      }
+
+      /* Liquid glass shimmer effect */
+      .horizontal-tabs-nav::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 8s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { left: -100%; }
+        50% { left: 100%; }
+        100% { left: 100%; }
       }
 
       .tabs-container {
@@ -255,7 +305,7 @@
         flex: 1;
         text-align: center;
         padding: 20px 30px;
-        color: white;
+        color: rgba(100, 100, 130, 0.9);
         text-decoration: none;
         font-size: 18px;
         font-weight: 600;
@@ -264,11 +314,13 @@
         transition: all 0.3s ease;
         border-bottom: 3px solid transparent;
         z-index: 1;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
       }
 
       .tab-item:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.4);
         transform: translateY(-2px);
+        color: rgba(80, 80, 110, 1);
       }
 
       .tab-text {
@@ -312,10 +364,11 @@
 
       /* Active tab styles */
       .tab-item.active {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.6);
+        color: rgba(60, 60, 90, 1);
       }
 
-      /* Yellow border as pseudo-element to layer above coin */
+      /* Iridescent border as pseudo-element to layer above coin */
       .tab-item.active::after {
         content: '';
         position: absolute;
@@ -323,8 +376,26 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: #ffd700;
+        background: linear-gradient(90deg,
+          #ffd700,
+          #ffed4e,
+          #f7dc6f,
+          #ffd700
+        );
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         z-index: 2;
+        animation: glow 2s ease-in-out infinite;
+      }
+
+      @keyframes glow {
+        0%, 100% {
+          opacity: 1;
+          box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        50% {
+          opacity: 0.9;
+          box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
       }
 
       /* Active tab coin - stays at half position */
