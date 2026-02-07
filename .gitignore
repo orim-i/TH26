@@ -14,4 +14,4 @@ env__
 *.sqlite3
 .env
 yarn.lock
-.history
+.historydb.sqlite3
