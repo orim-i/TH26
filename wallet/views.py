@@ -14,7 +14,11 @@ from pathlib import Path
 from django.conf import settings
 from .plaid_pull import sync_plaid_to_sqlite
 from importlib.machinery import SourceFileLoader
-import sqlite3, os
+import sqlite3, os, random
+import requests
+import certifi
+from requests.exceptions import SSLError
+from requests.auth import HTTPBasicAuth
 import asyncio
 from dedalus_labs import AsyncDedalus, DedalusRunner
 from django.views.decorators.csrf import csrf_exempt
@@ -59,6 +63,87 @@ def sync_plaid_to_sqlite(json_plaid_path, db_path, loader_path, bills_json_path=
             counts[tbl] = 0
     conn.close()
     return counts
+
+
+def _visa_pav_verify_pan(pan: str):
+    user_id = os.getenv("VISA_PAV_USER_ID")
+    password = os.getenv("VISA_PAV_PASSWORD")
+    cert_path = os.getenv("VISA_CERT_PATH")
+    key_path = os.getenv("VISA_KEY_PATH")
+    ca_path = os.getenv("VISA_CA_PATH")
+    base_url = os.getenv("VISA_PAV_BASE_URL", "https://sandbox.api.visa.com")
+
+    if not user_id or not password:
+        return False, "Visa PAV credentials are not configured."
+    if not cert_path or not key_path:
+        return False, "Visa client certificate and key are not configured."
+
+    endpoint = f"{base_url}/pav/v1/cardvalidation"
+
+    # Required fields: PAN, acquiring BIN, and country code (plus basic cardAcceptor info)
+    stan = f"{random.randint(0, 999999):06d}"
+    rrn = f"{random.randint(0, 999999999999):012d}"
+
+    payload = {
+        "primaryAccountNumber": pan,
+        "acquiringBin": os.getenv("VISA_PAV_ACQUIRING_BIN", "408999"),
+        "acquirerCountryCode": os.getenv("VISA_PAV_ACQUIRER_COUNTRY_CODE", "840"),
+        "cardAcceptor": {
+            "name": "Trove App",
+            "terminalId": "TROVE001",
+            "idCode": "TROVE001",
+            "address": {
+                "country": "USA",
+                "zipCode": "94404",
+                "city": "San Francisco",
+                "state": "CA"
+            }
+        },
+        "systemsTraceAuditNumber": stan,
+        "retrievalReferenceNumber": rrn,
+    }
+
+    verify_opt = ca_path if (ca_path and os.path.exists(ca_path)) else certifi.where()
+    try:
+        resp = requests.post(
+            endpoint,
+            json=payload,
+            auth=HTTPBasicAuth(user_id, password),
+            cert=(cert_path, key_path),
+            verify=verify_opt,
+            timeout=15,
+        )
+    except SSLError:
+        # Retry with system CA bundle in case custom chain is wrong
+        try:
+            resp = requests.post(
+                endpoint,
+                json=payload,
+                auth=HTTPBasicAuth(user_id, password),
+                cert=(cert_path, key_path),
+                verify=certifi.where(),
+                timeout=15,
+            )
+        except Exception as e:
+            return False, f"Visa PAV request error: {e}"
+    except Exception as e:
+        return False, f"Visa PAV request error: {e}"
+
+    if resp.status_code >= 400:
+        return False, f"Visa PAV failed ({resp.status_code})."
+
+    data = {}
+    try:
+        data = resp.json()
+    except Exception:
+        return False, "Visa PAV returned an invalid response."
+
+    action_code = str(data.get("actionCode", "")).strip()
+    if action_code in {"00", "85"}:
+        return True, "Verified"
+    if action_code:
+        return False, f"Action code {action_code}"
+    return False, "Verification failed."
 
 
 @login_required
@@ -220,6 +305,17 @@ def add_card(request):
         annual_fee = request.POST.get("annual_fee", 0)
         card_type = request.POST.get("type", "credit")
         base_reward_rate = request.POST.get("base_reward_rate", 1)
+        pan_raw = request.POST.get("pan", "")
+        pan = "".join(ch for ch in pan_raw if ch.isdigit())
+
+        if not pan or len(pan) < 13 or len(pan) > 19:
+            messages.error(request, "Please enter a valid card number for verification.")
+            return redirect("add_card")
+
+        ok, msg = _visa_pav_verify_pan(pan)
+        if not ok:
+            messages.error(request, f"Unverified card. {msg}")
+            return redirect("add_card")
 
         try:
             # Used Django ORM instead of raw INSERT
