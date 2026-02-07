@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.db import connection
 from django.db.models import Sum, Count, Q
 from django.http import JsonResponse
+import json
 
 from .models import Transaction, Card, Deal, Goal, Subscription
 import markdown2
@@ -65,10 +66,32 @@ def dashboard(request):
     transactions = Transaction.objects.order_by("-date")[:5]
     goals = Goal.objects.all()
     cards = Card.objects.all()  # Loads all cards, no user filter
+    end_date = date.today()
+    start_date = end_date - timedelta(days=6)
+    date_keys = [(start_date + timedelta(days=i)) for i in range(7)]
+    date_strs = [d.isoformat() for d in date_keys]
+    totals_by_date = {d: 0.0 for d in date_strs}
+    with connection.cursor() as cur:
+        cur.execute(
+            """
+            SELECT date, COALESCE(SUM(amount), 0)
+            FROM transactions
+            WHERE date BETWEEN %s AND %s
+            GROUP BY date
+            """,
+            [start_date.isoformat(), end_date.isoformat()],
+        )
+        for tx_date, total in cur.fetchall():
+            totals_by_date[str(tx_date)] = float(total or 0)
+    widget_line_categories = [d.strftime("%a") for d in date_keys]
+    widget_line_series = [totals_by_date[d] for d in date_strs]
+
     return render(request, "wallet/dashboard.html", {
         "transactions": transactions,
         "goals": goals,
         "cards": cards,
+        "widget_line_categories": json.dumps(widget_line_categories),
+        "widget_line_series": json.dumps(widget_line_series),
     })
 
 

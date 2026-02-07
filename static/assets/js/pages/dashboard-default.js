@@ -51,6 +51,7 @@ var options = {
     chart: {
         type: 'line',
         height: 210,
+        foreColor: '#000',
         zoom: {
             enabled: false
         },
@@ -62,6 +63,10 @@ var options = {
         enabled: false,
     },
     colors: ["#000"],
+    stroke: {
+        width: 2,
+        colors: ['#000'],
+    },
     fill: {
         type: 'solid',
     },
@@ -83,7 +88,7 @@ var options = {
         },
         labels: {
             style: {
-                colors: "#fff"
+                colors: "#000"
             }
         },
     },

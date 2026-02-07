@@ -120,8 +120,9 @@ def index(request):
   # Past 7 days (including today) spending for the line chart
   end_date = timezone.localdate()
   start_date = end_date - timedelta(days=6)
-  date_keys = [(start_date + timedelta(days=i)).isoformat() for i in range(7)]
-  totals_by_date = {d: 0.0 for d in date_keys}
+  date_keys = [(start_date + timedelta(days=i)) for i in range(7)]
+  date_strs = [d.isoformat() for d in date_keys]
+  totals_by_date = {d: 0.0 for d in date_strs}
   with connection.cursor() as cur:
       cur.execute(
           """
@@ -134,8 +135,8 @@ def index(request):
       )
       for tx_date, total in cur.fetchall():
           totals_by_date[str(tx_date)] = float(total or 0)
-  widget_line_categories = date_keys
-  widget_line_series = [totals_by_date[d] for d in date_keys]
+  widget_line_categories = [d.strftime("%a") for d in date_keys]
+  widget_line_series = [totals_by_date[d] for d in date_strs]
   
   # all the deals stuff
   context = {
