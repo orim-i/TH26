@@ -250,7 +250,7 @@
   .hidden{display:none}
   :root{--radius:16px;--shadow:0 10px 25px -10px rgba(2,6,23,.15)}
   .rounded-2xl{border-radius:var(--radius)}.shadow-md{box-shadow:var(--shadow)}
-  .bg-white\/60{background:rgba(255,255,255,.6)}.bg-white\/70{background:rgba(255,255,255,.7)}
+  .bg-white\/60,.bg-white\/70{background:rgba(255,255,255,.75);backdrop-filter:blur(10px) saturate(150%);-webkit-backdrop-filter:blur(10px) saturate(150%)}
   .border{border:1px solid rgba(15,23,42,.08)}.border-slate-100{border-color:rgba(15,23,42,.06)}.border-slate-200{border-color:rgba(15,23,42,.12)}
   .text-3xl{font-size:1.75rem}.text-2xl{font-size:1.5rem}.text-xl{font-size:1.25rem}.font-bold{font-weight:800}.font-semibold{font-weight:700}.font-medium{font-weight:600}
   .opacity-60{opacity:.6}.opacity-70{opacity:.7}.uppercase{text-transform:uppercase}

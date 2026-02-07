@@ -1,172 +1,13 @@
 {% load static %}
 
+<!-- Fixed background logo - sits behind everything, always visible -->
+<div class="bg-logo-wrapper">
+  <img src="{% static '/img/logo.png' %}"
+       alt="PieceWise Logo"
+       class="bg-logo">
+</div>
+
 <header class="new-header">
-    <div class="d-flex align-items-center justify-content-between">
-      
-      <div class="d-flex align-items-center" style="flex: 1;">
-        <ul class="list-unstyled"></ul>
-      </div>
-
-      <div class="d-flex justify-content-center align-items-center" style="flex: 1;">
-        <a href="{% url 'dashboard' %}" class="navbar-brand-center">
-          <img src="{% static '/img/logo.png' %}"
-               alt="PieceWise Logo"
-               style="height: 60px; width: auto; display: block;">
-        </a>
-      </div>
-
-      <div class="d-flex align-items-center justify-content-end gap-3" style="flex: 1;">
-        
-        <div class="dropdown pc-h-item">
-            <a
-              class="pc-head-link dropdown-toggle arrow-none me-0"
-              data-bs-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="false"
-              aria-expanded="false"
-            >
-              <i data-feather="bell"></i>
-              {% if spending_alert_count %}
-              <span class="badge bg-danger pc-h-badge">{{ spending_alert_count }}</span>
-              {% else %}
-              <span class="badge bg-success pc-h-badge">0</span>
-              {% endif %}
-            </a>
-            <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
-              <div class="dropdown-header d-flex align-items-center justify-content-between">
-                <h5 class="m-0">Notifications</h5>
-              </div>
-              <div class="dropdown-body text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px); overflow-y: auto;">
-                <p class="text-span">Today</p>
-                {% if spending_alerts %}
-                  {% for alert in spending_alerts %}
-                  <div class="card mb-2 spending-alert-item" data-alert-id="{{ alert.goal_id }}:{{ alert.threshold }}">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start justify-content-between gap-2">
-                        <div>
-                          <p class="mb-1">
-                            {{ alert.category }}: {{ alert.percent }}% of limit
-                          </p>
-                          <span class="badge bg-{{ alert.level }}">
-                            {{ alert.threshold }}+ reached
-                          </span>
-                        </div>
-                        <button type="button" class="btn-close js-dismiss-alert" aria-label="Close"></button>
-                      </div>
-                    </div>
-                  </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="card mb-0">
-                    <div class="card-body">
-                      <p class="mb-0">No spending alerts right now.</p>
-                    </div>
-                  </div>
-                {% endif %}
-              </div>
-              <div class="text-center py-2">
-                <a href="#!" class="link-danger" id="clearNotificationsBtn">Clear all Notifications</a>
-              </div>
-            </div>
-        </div>
-
-        <div class="dropdown pc-h-item header-user-profile">
-            <a
-              class="pc-head-link dropdown-toggle arrow-none me-0"
-              data-bs-toggle="dropdown"
-              href="#"
-              role="button"
-              aria-haspopup="false"
-              data-bs-auto-close="outside"
-              aria-expanded="false"
-            >
-              <i data-feather="user"></i>
-            </a>
-            
-            <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-0" style="overflow: visible !important;">
-              <div class="dropdown-header d-flex align-items-center justify-content-between bg-primary">
-                <div class="d-flex my-2">
-                  <div class="flex-shrink-0">
-                    <img src="{% static "assets/images/user/avatar-2.jpg" %}" alt="user-image" class="user-avtar wid-35" />
-                  </div>
-                  <div class="flex-grow-1 ms-3">
-                    <h6 class="text-white mb-1">Andrew Carnegie</h6>
-                    <span class="text-white text-opacity-75">acarn@andrew.cmu.edu</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="dropdown-body p-2">
-                  
-                  <div class="dropdown-submenu position-relative mb-1">
-                      <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
-                        <span class="d-flex align-items-center">
-                          <i data-feather="settings" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
-                          <span>Settings</span>
-                        </span>
-                        <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
-                      </a>
-
-                      <ul class="dropdown-menu submenu-popout">
-                        <li class="dropdown-header">Account Settings</li>
-                        <li>
-                          <a class="dropdown-item" href="{% url 'password_change' %}">
-                            Change Password
-                          </a>
-                        </li>
-                        <li>
-                          <a class="dropdown-item" href="#">
-                            Privacy Policy
-                          </a>
-                        </li>
-                      </ul>
-                  </div>
-
-                  <div class="dropdown-submenu position-relative mb-1">
-                      <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
-                        <span class="d-flex align-items-center">
-                          <i data-feather="user" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
-                          <span>Personal Information</span>
-                        </span>
-                        <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
-                      </a>
-
-                      <ul class="dropdown-menu submenu-popout">
-                        <li class="dropdown-header">Profile Options</li>
-                        <li>
-                          <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeNameModal">
-                            Change Name
-                          </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                          <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#personalInfoModal">
-                            View Full Profile
-                          </a>
-                        </li>
-                      </ul>
-                  </div>
-
-                  <hr class="dropdown-divider">
-
-                  <div class="d-grid my-2">
-                    {% if request.user.is_authenticated %}
-                    <a href="{% url "logout" %}" class="btn btn-primary">
-                      <i data-feather="log-out" class="me-2" style="width:16px; height:16px;"></i>Logout
-                    </a>
-                    {% else %}
-                    <a href="{% url "login" %}" class="btn btn-primary">
-                      <i data-feather="log-in" class="me-2" style="width:16px; height:16px;"></i>Login
-                    </a>
-                    {% endif %}
-                  </div>
-              </div>
-            </div>
-        </div>
-      </div>
-    </div>
-
     <div class="horizontal-tabs-nav">
       <nav class="tabs-container">
         <a href="{% url 'dashboard' %}" class="tab-item">
@@ -193,20 +34,187 @@
           <span class="tab-text">Agent</span>
           <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
         </a>
+
+        <!-- Notifications & Account icons in the nav bar -->
+        <div class="nav-icons">
+          <div class="dropdown pc-h-item">
+              <a
+                class="pc-head-link dropdown-toggle arrow-none me-0"
+                data-bs-toggle="dropdown"
+                href="#"
+                role="button"
+                aria-haspopup="false"
+                aria-expanded="false"
+              >
+                <i data-feather="bell"></i>
+                {% if spending_alert_count %}
+                <span class="badge bg-danger pc-h-badge">{{ spending_alert_count }}</span>
+                {% else %}
+                <span class="badge bg-success pc-h-badge">0</span>
+                {% endif %}
+              </a>
+              <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
+                <div class="dropdown-header d-flex align-items-center justify-content-between">
+                  <h5 class="m-0">Notifications</h5>
+                </div>
+                <div class="dropdown-body text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px); overflow-y: auto;">
+                  <p class="text-span">Today</p>
+                  {% if spending_alerts %}
+                    {% for alert in spending_alerts %}
+                    <div class="card mb-2 spending-alert-item" data-alert-id="{{ alert.goal_id }}:{{ alert.threshold }}">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                          <div>
+                            <p class="mb-1">
+                              {{ alert.category }}: {{ alert.percent }}% of limit
+                            </p>
+                            <span class="badge bg-{{ alert.level }}">
+                              {{ alert.threshold }}+ reached
+                            </span>
+                          </div>
+                          <button type="button" class="btn-close js-dismiss-alert" aria-label="Close"></button>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                    <div class="card mb-0">
+                      <div class="card-body">
+                        <p class="mb-0">No spending alerts right now.</p>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="text-center py-2">
+                  <a href="#!" class="link-danger" id="clearNotificationsBtn">Clear all Notifications</a>
+                </div>
+              </div>
+          </div>
+
+          <div class="dropdown pc-h-item header-user-profile">
+              <a
+                class="pc-head-link dropdown-toggle arrow-none me-0"
+                data-bs-toggle="dropdown"
+                href="#"
+                role="button"
+                aria-haspopup="false"
+                data-bs-auto-close="outside"
+                aria-expanded="false"
+              >
+                <i data-feather="user"></i>
+              </a>
+
+              <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-0" style="overflow: visible !important;">
+                <div class="dropdown-header d-flex align-items-center justify-content-between bg-primary">
+                  <div class="d-flex my-2">
+                    <div class="flex-shrink-0">
+                      <img src="{% static "assets/images/user/avatar-2.jpg" %}" alt="user-image" class="user-avtar wid-35" />
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="text-white mb-1">Andrew Carnegie</h6>
+                      <span class="text-white text-opacity-75">acarn@andrew.cmu.edu</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dropdown-body p-2">
+
+                    <div class="dropdown-submenu position-relative mb-1">
+                        <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
+                          <span class="d-flex align-items-center">
+                            <i data-feather="settings" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
+                            <span>Settings</span>
+                          </span>
+                          <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
+                        </a>
+
+                        <ul class="dropdown-menu submenu-popout">
+                          <li class="dropdown-header">Account Settings</li>
+                          <li>
+                            <a class="dropdown-item" href="{% url 'password_change' %}">
+                              Change Password
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">
+                              Privacy Policy
+                            </a>
+                          </li>
+                        </ul>
+                    </div>
+
+                    <div class="dropdown-submenu position-relative mb-1">
+                        <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
+                          <span class="d-flex align-items-center">
+                            <i data-feather="user" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
+                            <span>Personal Information</span>
+                          </span>
+                          <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
+                        </a>
+
+                        <ul class="dropdown-menu submenu-popout">
+                          <li class="dropdown-header">Profile Options</li>
+                          <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeNameModal">
+                              Change Name
+                            </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#personalInfoModal">
+                              View Full Profile
+                            </a>
+                          </li>
+                        </ul>
+                    </div>
+
+                    <hr class="dropdown-divider">
+
+                    <div class="d-grid my-2">
+                      {% if request.user.is_authenticated %}
+                      <a href="{% url "logout" %}" class="btn btn-primary">
+                        <i data-feather="log-out" class="me-2" style="width:16px; height:16px;"></i>Logout
+                      </a>
+                      {% else %}
+                      <a href="{% url "login" %}" class="btn btn-primary">
+                        <i data-feather="log-in" class="me-2" style="width:16px; height:16px;"></i>Login
+                      </a>
+                      {% endif %}
+                    </div>
+                </div>
+              </div>
+          </div>
+        </div>
       </nav>
     </div>
 
     <style>
-      /* --- Header Styles --- */
-      .new-header {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(250, 250, 255, 0.45) 100%);
-        backdrop-filter: blur(15px) saturate(150%);
-        -webkit-backdrop-filter: blur(15px) saturate(150%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+      /* --- Background Logo --- */
+      .bg-logo-wrapper {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        z-index: -2;
+        pointer-events: none;
       }
-      
-      /* --- Tab Styles (Unchanged) --- */
+      .bg-logo {
+        height: 240px;
+        width: auto;
+        display: block;
+        opacity: 0.9;
+      }
+
+      /* --- Header / Nav Bar --- */
+      .new-header {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+      }
+
+      /* --- Tab Styles --- */
       .horizontal-tabs-nav {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(240, 248, 255, 0.35) 25%, rgba(250, 240, 255, 0.3) 50%, rgba(255, 240, 245, 0.35) 75%, rgba(255, 255, 255, 0.3) 100%);
         backdrop-filter: blur(20px) saturate(180%);
@@ -223,7 +231,7 @@
         animation: shimmer 8s infinite;
       }
       @keyframes shimmer { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
-      .tabs-container { display: flex; justify-content: space-evenly; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0; }
+      .tabs-container { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0; }
       .tab-item { flex: 1; text-align: center; padding: 20px 30px; color: rgba(100, 100, 130, 0.9); text-decoration: none; font-size: 18px; font-weight: 600; position: relative; overflow: hidden; transition: all 0.3s ease; border-bottom: 3px solid transparent; z-index: 1; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); }
       .tab-item:hover:not(.active) { background: rgba(255, 255, 255, 0.4); transform: translateY(-2px); color: rgba(80, 80, 110, 1); }
       .tab-text { display: inline-block; position: relative; z-index: 2; }
@@ -238,10 +246,26 @@
       .tab-item.leaving .coin-animation { animation: coinFallComplete 0.4s ease-in forwards; }
       @keyframes coinFallComplete { 0% { opacity: 1; top: 43px; transform: translateX(-50%); } 100% { opacity: 0; top: 48px; transform: translateX(-50%); } }
 
+      /* --- Nav Icons (bell + user) inside the tab bar --- */
+      .nav-icons {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 0 30px;
+        flex-shrink: 0;
+      }
+      .nav-icons .pc-head-link {
+        color: rgba(100, 100, 130, 0.9);
+        transition: color 0.3s ease;
+      }
+      .nav-icons .pc-head-link:hover {
+        color: rgba(60, 60, 90, 1);
+      }
+
       /* --- Submenu Styles --- */
       .dropdown-submenu .submenu-popout {
         top: -8px;
-        right: 100%; 
+        right: 100%;
         margin-right: 2px;
         display: none;
         position: absolute;
@@ -325,7 +349,7 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        // --- Tabs Logic (Unchanged) ---
+        // --- Tabs Logic ---
         const tabs = document.querySelectorAll('.tab-item');
         const currentPath = window.location.pathname;
         tabs.forEach(tab => {
@@ -344,14 +368,14 @@
 
         // --- Submenu Logic ---
         const submenuTriggers = document.querySelectorAll('.submenu-trigger');
-        
+
         submenuTriggers.forEach(trigger => {
             trigger.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const parent = this.closest('.dropdown-submenu');
-                
+
                 // Close other submenus
                 document.querySelectorAll('.dropdown-submenu.show-submenu').forEach(openMenu => {
                     if (openMenu !== parent) {
@@ -369,7 +393,7 @@
         document.addEventListener('click', function(e) {
             const isClickInsideSubmenu = e.target.closest('.submenu-popout');
             const isClickInsideTrigger = e.target.closest('.submenu-trigger');
-            
+
             if (!isClickInsideSubmenu && !isClickInsideTrigger) {
                 document.querySelectorAll('.dropdown-submenu.show-submenu').forEach(submenu => {
                     submenu.classList.remove('show-submenu');
