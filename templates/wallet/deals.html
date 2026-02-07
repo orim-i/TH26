@@ -110,6 +110,14 @@
 
   const tags = Array.from(new Set(allDeals.map(getTag)));
 
+  // Helper to parse date or return a far future date if missing
+  function parseExpiry(exp) {
+    if (!exp) return new Date('2099-12-31');
+    // Try to parse YYYY-MM-DD
+    const d = new Date(exp);
+    return isNaN(d.getTime()) ? new Date('2099-12-31') : d;
+  }
+
   // Dropdown filter logic
   const filterDropdown = document.getElementById('dealDropdownFilters');
   const activeFiltersSpan = document.getElementById('activeFilters');
@@ -153,7 +161,10 @@
     const count = document.getElementById('dealCount');
     const checked = activeFilters;
 
-    const filtered = allDeals.filter(d => checked.includes(getTag(d)));
+    // Sort deals by expiry date, closest first
+    const filtered = allDeals
+      .filter(d => checked.includes(getTag(d)))
+      .sort((a, b) => parseExpiry(a.expires) - parseExpiry(b.expires));
 
     count.textContent = `${filtered.length} deal${filtered.length === 1 ? '' : 's'}`;
 
