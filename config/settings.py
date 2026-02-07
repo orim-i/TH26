@@ -183,6 +183,7 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
