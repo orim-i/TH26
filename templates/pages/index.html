@@ -2,6 +2,26 @@
 
 {% block content %}
 <div class="container-md px-4 my-5">
+  <style>
+    .wrapped-alert {
+      background: #efe7ff;
+      border-color: #d6c2ff;
+      color: #3d1f7a;
+    }
+    .wrapped-alert .text-muted {
+      color: #5a3b91 !important;
+    }
+    .wrapped-alert-btn {
+      background: #7a3ff2;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+    }
+    .wrapped-alert-btn:hover {
+      background: #6a31e6;
+      color: #fff;
+    }
+  </style>
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
@@ -41,6 +61,26 @@
     </div>
   </div>
   -->
+
+  <div class="row mb-4" id="wrappedAlertRow">
+    <div class="col-12">
+      <div
+        class="alert wrapped-alert d-flex align-items-start gap-2 alert-dismissible fade show"
+        id="wrappedAlert"
+        data-alert-signature="wrapped_v1"
+      >
+        <div class="me-1">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">Your piecewise wrapped is here!</div>
+          <div class="small text-muted">Tap to see your highlights and insights.</div>
+        </div>
+        <a class="btn btn-sm wrapped-alert-btn me-2" href="{% url 'agent' %}#wrapped">view now</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
 
   {% if spending_alerts %}
   <div class="row mb-4" id="spendingAlertRow">
@@ -172,305 +212,260 @@
             -->
         <!-- [ statistics year chart ] end -->
 
-<!-- all deals stuff -->
+<!-- Deals Spotlight -->
 <div class="container-md px-4 my-0">
-<!-- Header -->
-<div class="d-flex align-items-center justify-content-between mb-4">
-<div>
-    <h1 class="h3 fw-bold mb-1">Deals Spotlight</h1>
-    <!--
-    <div class="text-muted small">
-    Best offers first — see full details on the <a href="{% url 'cards' %}">My Cards</a> page.
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="h5 fw-bold mb-0">Deals Spotlight</h2>
+    <div class="small text-muted" id="dealCount">0 deals</div>
+  </div>
+
+  <!-- Filter Options -->
+  <div class="row align-items-center mb-3">
+    <div class="col-auto fw-semibold">Filter:</div>
+    <div class="col-auto">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dealFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Add Filter
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dealFilterDropdown" id="dealDropdownFilters"></ul>
+      </div>
     </div>
-    -->
-</div>
-<!--
-<div class="text-end">
-    <div class="text-uppercase small text-muted">Cards Loaded</div>
-    <div class="fs-4 fw-semibold">{{ cards|length }}</div>
-</div>
--->
-</div>
+    <div class="col" id="activeFilters"></div>
+  </div>
 
-<!-- Filter Options -->
-
-<div class="mb-3">
-<!--<span class="fw-semibold me-2">Filter Deals:</span>-->
-<div id="dealFilters" >
-    <!-- Checkboxes are here -->
-</div>
-</div>
-
-<!-- Deals Grid -->
-<div class="d-flex align-items-center justify-content-between mb-3">
-<div class="small text-muted" id="dealCount">0 deals</div>
-</div>
-<div id="dealsGrid" class="row g-4"></div>
+  <div id="dealsGrid" class="row g-4"></div>
 </div>
 
 {# Build the deals list from cards #}
 {% for c in cards %}
-{% if c.welcome_bonus %}
-<script>
-    (window._deals = window._deals || []).push({
-    type: "welcome",
-    title: {% if c.welcome_bonus.points %}"{{ c.welcome_bonus.points|floatformat:0 }} pts"{% elif c.welcome_bonus.cash_back %}"${{ c.welcome_bonus.cash_back|floatformat:0 }} cash"{% elif c.welcome_bonus.points_or_cash %}"{{ c.welcome_bonus.points_or_cash|floatformat:0 }} value"{% else %}"Welcome Offer"{% endif %},
-    subtitle: {% if c.welcome_bonus.spend_requirement and c.welcome_bonus.time_frame_months %}
-        "After ${{ c.welcome_bonus.spend_requirement|floatformat:0 }} in {{ c.welcome_bonus.time_frame_months }} mo"
-    {% elif c.welcome_bonus.spend_requirement %}
-        "After ${{ c.welcome_bonus.spend_requirement|floatformat:0 }} spend"
-    {% elif c.welcome_bonus.time_frame_months %}
-        "In {{ c.welcome_bonus.time_frame_months }} months"
-    {% else %}
-        ""
-    {% endif %},
-    card: "{{ c.card_name|escapejs }}",
-    issuer: "{{ c.issuer|default:'—'|escapejs }}",
-    expires: "{{ c.current_period.end_date|default_if_none:''|escapejs }}"
-    });
-</script>
-{% endif %}
-
-{% if c.perks %}
-{% for p in c.perks %}
+  {% if c.welcome_bonus %}
     <script>
-    (window._deals = window._deals || []).push({
-        type: "perk",
-        title: "{{ p.perk_name|escapejs }}",
-        subtitle: "{% if p.frequency %}{{ p.frequency|escapejs }}{% elif p.description %}{{ p.description|escapejs }}{% else %}{% endif %}",
+      (window._deals = window._deals || []).push({
+        type: "welcome",
+        title: {% if c.welcome_bonus.points %}"{{ c.welcome_bonus.points|floatformat:0 }} pts"{% elif c.welcome_bonus.cash_back %}"${{ c.welcome_bonus.cash_back|floatformat:0 }} cash"{% elif c.welcome_bonus.points_or_cash %}"{{ c.welcome_bonus.points_or_cash|floatformat:0 }} value"{% else %}"Welcome Offer"{% endif %},
+        subtitle: {% if c.welcome_bonus.spend_requirement and c.welcome_bonus.time_frame_months %}
+          "After ${{ c.welcome_bonus.spend_requirement|floatformat:0 }} in {{ c.welcome_bonus.time_frame_months }} mo"
+        {% elif c.welcome_bonus.spend_requirement %}
+          "After ${{ c.welcome_bonus.spend_requirement|floatformat:0 }} spend"
+        {% elif c.welcome_bonus.time_frame_months %}
+          "In {{ c.welcome_bonus.time_frame_months }} months"
+        {% else %}
+          ""
+        {% endif %},
         card: "{{ c.card_name|escapejs }}",
         issuer: "{{ c.issuer|default:'—'|escapejs }}",
         expires: "{{ c.current_period.end_date|default_if_none:''|escapejs }}"
-    });
+      });
     </script>
-{% endfor %}
-{% endif %}
+  {% endif %}
 
-{% if c.bonus_categories %}
-{% for bc in c.bonus_categories %}
-    <script>
-    (window._deals = window._deals || []).push({
-        type: "category",
-        title: "{{ bc.category_name|escapejs }}{% if bc.reward_rate %} · {{ bc.reward_rate|floatformat:2 }}x{% endif %}",
-        subtitle: "{% if bc.cap %}Cap ${{ bc.cap|floatformat:0 }}{% if bc.note %} · {{ bc.note|escapejs }}{% endif %}{% else %}{% if bc.note %}{{ bc.note|escapejs }}{% endif %}{% endif %}",
-        card: "{{ c.card_name|escapejs }}",
-        issuer: "{{ c.issuer|default:'—'|escapejs }}",
-        expires: "{{ c.current_period.end_date|default_if_none:''|escapejs }}"
-    });
-    </script>
-{% endfor %}
-{% endif %}
+  {% if c.perks %}
+    {% for p in c.perks %}
+      <script>
+        (window._deals = window._deals || []).push({
+          type: "perk",
+          title: "{{ p.perk_name|escapejs }}",
+          subtitle: "{% if p.frequency %}{{ p.frequency|escapejs }}{% elif p.description %}{{ p.description|escapejs }}{% endif %}",
+          card: "{{ c.card_name|escapejs }}",
+          issuer: "{{ c.issuer|default:'—'|escapejs }}",
+          expires: "{{ c.current_period.end_date|default_if_none:''|escapejs }}"
+        });
+      </script>
+    {% endfor %}
+  {% endif %}
+
+  {% if c.bonus_categories %}
+    {% for bc in c.bonus_categories %}
+      <script>
+        (window._deals = window._deals || []).push({
+          type: "category",
+          title: "{{ bc.category_name|escapejs }}{% if bc.reward_rate %} · {{ bc.reward_rate|floatformat:2 }}x{% endif %}",
+          subtitle: "{% if bc.cap %}Cap ${{ bc.cap|floatformat:0 }}{% if bc.note %} · {{ bc.note|escapejs }}{% endif %}{% else %}{% if bc.note %}{{ bc.note|escapejs }}{% endif %}{% endif %}",
+          card: "{{ c.card_name|escapejs }}",
+          issuer: "{{ c.issuer|default:'—'|escapejs }}",
+          expires: "{{ c.current_period.end_date|default_if_none:''|escapejs }}"
+        });
+      </script>
+    {% endfor %}
+  {% endif %}
 {% endfor %}
 
 <script>
 (function(){
-const allDeals = (window._deals || []).filter(Boolean);
+  const allDeals = (window._deals = window._deals || []).filter(Boolean);
 
-// Shuffle array helper (Fisher–Yates)
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+  function getTag(d){
+    const merchant = (d.title || '').toLowerCase();
+    const type = (d.type || '').toLowerCase();
+
+    // Travel
+    if (
+      type.includes('travel') ||
+      merchant.includes('lyft') ||
+      merchant.includes('uber') ||
+      merchant.includes('airbnb') ||
+      merchant.includes('hotel') ||
+      merchant.includes('flight') ||
+      merchant.includes('gas') ||
+      merchant.includes('charging')
+    ) return 'Travel';
+
+    // Food
+    if (
+      type.includes('food') ||
+      type.includes('dining') ||
+      merchant.includes('bouqs') ||
+      merchant.includes('restaurant') ||
+      merchant.includes('dining') ||
+      merchant.includes('eat') ||
+      merchant.includes('grocery') ||
+      merchant.includes('market') ||
+      merchant.includes('club')
+    ) return 'Food';
+
+    // Entertainment
+    if (
+      type.includes('entertainment') ||
+      merchant.includes('fubo') ||
+      merchant.includes('netflix') ||
+      merchant.includes('hulu') ||
+      merchant.includes('disney') ||
+      merchant.includes('visible') ||
+      merchant.includes('tv') ||
+      merchant.includes('movie')
+    ) return 'Entertainment';
+
+    return 'Other';
   }
-  return array;
-}
 
-// 1. Get unique deal types/tags for filter checkboxes
-const tags = Array.from(new Set(allDeals.map(d=>{
-if(d.type==='welcome') return 'Welcome';
-if(d.type==='perk') return 'Perk';
-if(d.type==='category') {
-    if(d.title.includes('Travel')) return 'Travel';
-    if(d.title.includes('Food')) return 'Food';
-    if(d.title.includes('Entertainment')) return 'Entertainment';
-    return 'Misc';
-}
-return 'Other';
-})));
+  const baseTags = ['Travel', 'Food', 'Entertainment', 'Other'];
+  const tags = Array.from(new Set([...baseTags, ...allDeals.map(getTag)])).sort();
 
-// 2. Render filter checkboxes
-const filterContainer = document.getElementById('dealFilters');
-tags.forEach(tag=>{
-const id = 'filter-'+tag;
-filterContainer.innerHTML += `
-    <div class="form-check form-check-inline">
-    <input class="form-check-input deal-filter" type="checkbox" id="${id}" value="${tag}" checked>
-    <label class="form-check-label" for="${id}">${tag}</label>
-    </div>
-`;
-});
+  function parseExpiry(exp) {
+    if (!exp) return new Date('2099-12-31');
+    const d = new Date(exp);
+    return isNaN(d.getTime()) ? new Date('2099-12-31') : d;
+  }
 
-// 3. Function to render **only 4 random deals** based on selected filters
-function renderDeals() {
-const checked = Array.from(document.querySelectorAll('.deal-filter:checked')).map(i=>i.value);
-const grid = document.getElementById('dealsGrid');
-const count = document.getElementById('dealCount');
+  const filterDropdown = document.getElementById('dealDropdownFilters');
+  const activeFiltersSpan = document.getElementById('activeFilters');
+  let activeFilters = [...tags];
 
-const filtered = allDeals.filter(d=>{
-    let tag = 'Other';
-    if(d.type==='welcome') tag='Welcome';
-    else if(d.type==='perk') tag='Perk';
-    else if(d.type==='category') {
-    if(d.title.includes('Travel')) tag='Travel';
-    else if(d.title.includes('Food')) tag='Food';
-    else if(d.title.includes('Entertainment')) tag='Entertainment';
-    else tag='Misc';
+  function renderDropdown() {
+    filterDropdown.innerHTML = '';
+    let added = false;
+    tags.forEach(tag => {
+      if (!activeFilters.includes(tag)) {
+        const id = 'filter-' + tag.replace(/[^a-zA-Z0-9]/g, '');
+        filterDropdown.innerHTML += `
+          <li>
+            <a class="dropdown-item" href="#" data-filter="${tag}" id="${id}">${tag}</a>
+          </li>
+        `;
+        added = true;
+      }
+    });
+    if (!added) {
+      filterDropdown.innerHTML = '<li class="dropdown-item text-muted" style="pointer-events:none;">No more filters</li>';
     }
-    return checked.includes(tag);
-});
+  }
 
-// Pick 4 random deals
-const sample = shuffle([...filtered]).slice(0,4);
+  function renderActiveFilters() {
+    activeFiltersSpan.innerHTML = activeFilters.map(tag => `
+      <span class="badge bg-light border text-dark me-1 mb-1" style="font-size:0.95em;">
+        ${tag}
+        <button type="button" class="btn btn-sm btn-close ms-1" aria-label="Remove" style="font-size:0.7em;vertical-align:middle;" data-remove-filter="${tag}"></button>
+      </span>
+    `).join('');
+  }
 
-count.textContent = `${sample.length} deal${sample.length===1?'':'s'}`;
+  function renderDeals() {
+    renderDropdown();
+    renderActiveFilters();
+    const grid = document.getElementById('dealsGrid');
+    const count = document.getElementById('dealCount');
+    const checked = activeFilters;
 
-if(!sample.length){
-    grid.innerHTML = '<div class="text-muted small">No current deals.</div>';
-    return;
-}
+    const filtered = allDeals
+      .filter(d => checked.includes(getTag(d)))
+      .sort((a, b) => parseExpiry(a.expires) - parseExpiry(b.expires));
 
-grid.innerHTML = sample.map(d=>{
-    const cap = [d.card,d.issuer].filter(Boolean).join(' • ');
-    const exp = d.expires ? `Ends ${d.expires}` : '';
-    let tag = 'Other';
-    if(d.type==='welcome') tag='New User Bonus';
-    else if(d.type==='perk') tag='Perk';
-    else if(d.type==='category'){
-    if(d.title.includes('Travel')) tag='Travel';
-    else if(d.title.includes('Food')) tag='Food';
-    else if(d.title.includes('Entertainment')) tag='Entertainment'; 
-    else tag='Food/Entertainment';
+    count.textContent = `${filtered.length} deal${filtered.length === 1 ? '' : 's'}`;
+
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="text-muted small">No current deals.</div>';
+      return;
     }
 
-    return `
-    <div class="col-12 col-md-6">
-        <div class="card h-100" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
-        <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between mb-1">
-            <span class="badge bg-light border text-dark">${tag}</span>
-            </div>
-            <div class="fw-bold" style="font-size:1.05rem">${d.title || ''}</div>
-            ${d.subtitle ? `<div class="text-muted small mt-1">${d.subtitle}</div>` : ''}
-            <div class="d-flex align-items-center justify-content-between mt-3">
-            <div class="text-muted small">${cap}</div>
-            <div class="text-muted small">${exp}</div>
-            </div>
-        </div>
-        </div>
-    </div>`;
-}).join('');
-}
+    const now = new Date();
+    grid.innerHTML = filtered.slice(0, 4).map(d => {
+      const exp = d.expires ? `Ends ${d.expires}` : ''; 
+      const tag = getTag(d);
 
-// 4. Initial render
-renderDeals();
+      // Calculate if expires within 30 days
+      let glowClass = '';
+      if (d.expires) {
+        const expDate = new Date(d.expires);
+        const diffDays = (expDate - now) / (1000 * 60 * 60 * 24);
+        if (diffDays >= 0 && diffDays <= 30) {
+          glowClass = 'deal-glow';
+        }
+      }
 
-// 5. Attach event listeners to checkboxes
-document.querySelectorAll('.deal-filter').forEach(cb=>{
-cb.addEventListener('change', renderDeals);
-});
+      const benefitHtml = d.benefit
+        ? `<div class="mb-2">${d.benefit}</div>`
+        : '';
+
+      return `
+        <div class="col-12 col-md-6">
+          <div class="card h-100 ${glowClass}" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge bg-light border text-dark">${tag}</span>
+                <span class="small text-muted" style="min-width:90px;text-align:right;">${exp || "—"}</span>
+              </div>
+              <div class="fw-bold mb-1" style="font-size:1.1rem">${d.title || ''}</div>
+              ${d.subtitle ? `<div class="text-muted small mb-1">${d.subtitle}</div>` : ''}
+              ${benefitHtml}
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div class="text-muted small">
+                  <i class="bi bi-credit-card me-1"></i>${d.card} <span class="mx-1">•</span> ${d.issuer}
+                </div>
+                ${d.finer_details ? `<div class="text-muted small text-end">${d.finer_details}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  filterDropdown.addEventListener('click', function(e){
+    const tag = e.target.getAttribute('data-filter');
+    if(tag && !activeFilters.includes(tag)){
+      activeFilters.push(tag);
+      renderDeals();
+    }
+    e.preventDefault();
+  });
+
+  activeFiltersSpan.addEventListener('click', function(e){
+    const tag = e.target.getAttribute('data-remove-filter');
+    if(tag){
+      activeFilters = activeFilters.filter(t => t !== tag);
+      renderDeals();
+    }
+  });
+
+  renderDeals();
 })();
 </script>
 
-
-<!--
-
-<script>
-(function(){
-const allDeals = (window._deals || []).filter(Boolean);
-
-// 1. Get unique deal types/tags for filter checkboxes
-const tags = Array.from(new Set(allDeals.map(d=>{
-if(d.type==='welcome') return 'Welcome';
-if(d.type==='perk') return 'Perk';
-if(d.type==='category') {
-    if(d.title.includes('Travel')) return 'Travel';
-    if(d.title.includes('Food')) return 'Food';
-    if(d.title.includes('Entertainment')) return 'Entertainment';
-    return 'Misc';
+<style>
+.deal-glow {
+  box-shadow: 0 0 0 4px #b3d8fd, 0 8px 24px -12px rgba(0,0,0,.15) !important;
+  border: 1.5px solid #2196f3 !important;
 }
-return 'Other';
-})));
-
-// 2. Render filter checkboxes
-const filterContainer = document.getElementById('dealFilters');
-tags.forEach(tag=>{
-const id = 'filter-'+tag;
-filterContainer.innerHTML += `
-    <div class="form-check form-check-inline">
-    <input class="form-check-input deal-filter" type="checkbox" id="${id}" value="${tag}" checked>
-    <label class="form-check-label" for="${id}">${tag}</label>
-    </div>
-`;
-});
-
-// 3. Function to render deals based on selected filters
-function renderDeals() {
-const checked = Array.from(document.querySelectorAll('.deal-filter:checked')).map(i=>i.value);
-const grid = document.getElementById('dealsGrid');
-const count = document.getElementById('dealCount');
-
-const filtered = allDeals.filter(d=>{
-    let tag = 'Other';
-    if(d.type==='welcome') tag='Welcome';
-    else if(d.type==='perk') tag='Perk';
-    else if(d.type==='category') {
-    if(d.title.includes('Travel')) tag='Travel';
-    else if(d.title.includes('Food')) tag='Food';
-    else tag='Misc';
-    }
-    return checked.includes(tag);
-});
-
-count.textContent = `${filtered.length} deal${filtered.length===1?'':'s'}`;
-
-if(!filtered.length){
-    grid.innerHTML = '<div class="text-muted small">No current deals.</div>';
-    return;
-}
-
-grid.innerHTML = filtered.slice(0,24).map(d=>{
-    const cap = [d.card,d.issuer].filter(Boolean).join(' • ');
-    const exp = d.expires ? `Ends ${d.expires}` : '';
-    let tag = 'Other';
-    if(d.type==='welcome') tag='New User Bonus';
-    else if(d.type==='perk') tag='Perk';
-    else if(d.type==='category'){
-    if(d.title.includes('Travel')) tag='Travel';
-    else if(d.title.includes('Food')) tag='Food';
-    else if(d.title.includes('Entertainment')) tag='Entertainment'; 
-    else tag='Food/Entertainment';
-    }
-
-    return `
-    <div class="col-12 col-md-6">
-        <div class="card h-100" style="border-radius:14px;box-shadow:0 8px 24px -12px rgba(0,0,0,.15)">
-        <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between mb-1">
-            <span class="badge bg-light border text-dark">${tag}</span>
-            </div>
-            <div class="fw-bold" style="font-size:1.05rem">${d.title || ''}</div>
-            ${d.subtitle ? `<div class="text-muted small mt-1">${d.subtitle}</div>` : ''}
-            <div class="d-flex align-items-center justify-content-between mt-3">
-            <div class="text-muted small">${cap}</div>
-            <div class="text-muted small">${exp}</div>
-            </div>
-        </div>
-        </div>
-    </div>`;
-}).join('');
-}
-
-// 4. Initial render
-renderDeals();
-
-// 5. Attach event listeners to checkboxes
-document.querySelectorAll('.deal-filter').forEach(cb=>{
-cb.addEventListener('change', renderDeals);
-});
-})();
-</script>
-
--->
+</style>
 
 
         <!-- [ worldLow section ] start -->
@@ -515,6 +510,30 @@ cb.addEventListener('change', renderDeals);
     if (!alertEl) return;
     const signature = alertEl.getAttribute("data-alert-signature") || "";
     const storageKey = "spending_alert_dismissed_signature";
+
+    try {
+      const dismissed = localStorage.getItem(storageKey);
+      if (dismissed && dismissed === signature) {
+        if (alertRow) alertRow.remove();
+        return;
+      }
+    } catch (e) {}
+
+    alertEl.addEventListener("closed.bs.alert", function () {
+      if (alertRow) alertRow.remove();
+      try {
+        localStorage.setItem(storageKey, signature);
+      } catch (e) {}
+    });
+  })();
+</script>
+<script>
+  (function () {
+    const alertEl = document.getElementById("wrappedAlert");
+    const alertRow = document.getElementById("wrappedAlertRow");
+    if (!alertEl) return;
+    const signature = alertEl.getAttribute("data-alert-signature") || "";
+    const storageKey = "wrapped_alert_dismissed_signature";
 
     try {
       const dismissed = localStorage.getItem(storageKey);
