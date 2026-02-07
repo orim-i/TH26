@@ -989,3 +989,93 @@ Top Spending Categories:"""
 
     # GET request - render the chat interface
     return render(request, "wallet/agent.html")
+
+
+@login_required
+def agent_wrapped(request):
+    """Return the user's last 30 days of spending as a categorized 'wrapped' summary."""
+    try:
+        with connection.cursor() as cur:
+            # Overall stats
+            cur.execute("""
+                SELECT
+                    COUNT(*) as tx_count,
+                    COALESCE(SUM(amount), 0) as total_spending,
+                    COALESCE(AVG(amount), 0) as avg_amount,
+                    COALESCE(MAX(amount), 0) as max_amount
+                FROM transactions
+                WHERE date >= date('now', '-30 days')
+            """)
+            row = cur.fetchone()
+            tx_count, total_spending, avg_amount, max_amount = row
+
+            # Spending by category
+            cur.execute("""
+                SELECT c.category, ROUND(SUM(t.amount), 2) as total, COUNT(*) as cnt
+                FROM transactions t
+                JOIN transaction_categories c ON t.transaction_id = c.transaction_id
+                WHERE t.date >= date('now', '-30 days')
+                GROUP BY c.category
+                ORDER BY total DESC
+            """)
+            categories = [
+                {"name": r[0], "total": float(r[1]), "count": r[2]}
+                for r in cur.fetchall()
+            ]
+
+            # Top merchant by total spend
+            cur.execute("""
+                SELECT merchant, ROUND(SUM(amount), 2) as total, COUNT(*) as cnt
+                FROM transactions
+                WHERE date >= date('now', '-30 days')
+                GROUP BY merchant
+                ORDER BY total DESC
+                LIMIT 1
+            """)
+            top_merchant_row = cur.fetchone()
+            top_merchant = (
+                {"name": top_merchant_row[0], "total": float(top_merchant_row[1]), "count": top_merchant_row[2]}
+                if top_merchant_row else None
+            )
+
+            # Most frequent merchant
+            cur.execute("""
+                SELECT merchant, COUNT(*) as cnt, ROUND(SUM(amount), 2) as total
+                FROM transactions
+                WHERE date >= date('now', '-30 days')
+                GROUP BY merchant
+                ORDER BY cnt DESC
+                LIMIT 1
+            """)
+            freq_merchant_row = cur.fetchone()
+            freq_merchant = (
+                {"name": freq_merchant_row[0], "count": freq_merchant_row[1], "total": float(freq_merchant_row[2])}
+                if freq_merchant_row else None
+            )
+
+            # Biggest single purchase
+            cur.execute("""
+                SELECT merchant, amount, date
+                FROM transactions
+                WHERE date >= date('now', '-30 days')
+                ORDER BY amount DESC
+                LIMIT 1
+            """)
+            biggest_row = cur.fetchone()
+            biggest_purchase = (
+                {"merchant": biggest_row[0], "amount": float(biggest_row[1]), "date": biggest_row[2]}
+                if biggest_row else None
+            )
+
+        return JsonResponse({
+            "tx_count": tx_count,
+            "total_spending": float(total_spending),
+            "avg_amount": round(float(avg_amount), 2),
+            "categories": categories,
+            "top_merchant": top_merchant,
+            "freq_merchant": freq_merchant,
+            "biggest_purchase": biggest_purchase,
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

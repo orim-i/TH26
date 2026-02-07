@@ -12,6 +12,7 @@ urlpatterns = [
     path("goals/", views.spending_dashboard, name="goals"),
     path("subscriptions/", views.subscriptions_dashboard, name="subscriptions"),
     path("agent/", views.agent_dashboard, name="agent"),
+    path("agent/wrapped/", views.agent_wrapped, name="agent_wrapped"),
     path('cards/delete/<int:card_id>/', views.delete_card, name='delete_card'),
     path("cards/add/", views.add_card, name="add_card"),
 ]

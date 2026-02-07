@@ -40,10 +40,14 @@
       <span class="tab-text">Goal Progress</span>
       <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
     </button>
+    <button class="feature-tab" data-feature="wrapped">
+      <span class="tab-text">Wrapped</span>
+      <img src="{% static 'img/coin.png' %}" alt="coin" class="coin-animation">
+    </button>
   </div>
 
   <!-- Chat Container -->
-  <div class="rounded-2xl shadow-md bg-white/70 backdrop-blur border border-slate-100 overflow-hidden" style="height: calc(100vh - 380px); display: flex; flex-direction: column;">
+  <div id="chatContainer" class="rounded-2xl shadow-md bg-white/70 backdrop-blur border border-slate-100 overflow-hidden" style="height: calc(100vh - 380px); display: flex; flex-direction: column;">
 
     <!-- Chat Messages -->
     <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
@@ -70,6 +74,73 @@
           Send
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Wrapped Container (hidden by default) -->
+  <div id="wrappedContainer" class="wrapped-container" style="display:none; height: calc(100vh - 380px); overflow-y: auto;">
+    <div class="wrapped-card">
+      <div class="wrapped-header">
+        <div class="wrapped-header-label">YOUR MONTHLY</div>
+        <div class="wrapped-header-title">Wrapped</div>
+        <div class="wrapped-header-sub">Last 30 days of spending</div>
+      </div>
+
+      <div id="wrappedLoading" class="wrapped-loading">
+        <div class="typing-indicator" style="justify-content:center">
+          <span></span><span></span><span></span>
+        </div>
+        <p style="text-align:center;color:#94a3b8;margin-top:0.5rem;font-size:0.875rem">Crunching your numbers...</p>
+      </div>
+
+      <div id="wrappedContent" style="display:none">
+        <!-- Big total -->
+        <div class="wrapped-total-box">
+          <div class="wrapped-total-label">You spent</div>
+          <div class="wrapped-total-amount" id="wrappedTotal">$0.00</div>
+          <div class="wrapped-total-sub" id="wrappedTxCount">across 0 transactions</div>
+        </div>
+
+        <!-- Stat highlights row -->
+        <div class="wrapped-stats-row">
+          <div class="wrapped-stat-card">
+            <div class="wrapped-stat-icon">&#128176;</div>
+            <div class="wrapped-stat-label">Biggest Purchase</div>
+            <div class="wrapped-stat-value" id="wrappedBiggest">—</div>
+            <div class="wrapped-stat-sub" id="wrappedBiggestMerchant"></div>
+          </div>
+          <div class="wrapped-stat-card">
+            <div class="wrapped-stat-icon">&#11088;</div>
+            <div class="wrapped-stat-label">Top Merchant</div>
+            <div class="wrapped-stat-value" id="wrappedTopMerchant">—</div>
+            <div class="wrapped-stat-sub" id="wrappedTopMerchantTotal"></div>
+          </div>
+          <div class="wrapped-stat-card">
+            <div class="wrapped-stat-icon">&#128257;</div>
+            <div class="wrapped-stat-label">Most Frequent</div>
+            <div class="wrapped-stat-value" id="wrappedFreqMerchant">—</div>
+            <div class="wrapped-stat-sub" id="wrappedFreqMerchantCount"></div>
+          </div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="wrapped-section-title">Where your money went</div>
+        <div id="wrappedCategories" class="wrapped-categories">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- Footer -->
+        <div class="wrapped-footer">
+          <img src="{% static 'img/coin.png' %}" alt="coin" style="width:20px;height:20px;vertical-align:middle"> Trove Financial Wrapped
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="wrappedEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
+        <div style="font-size:2.5rem;margin-bottom:1rem">&#128566;</div>
+        <div style="font-size:1.125rem;font-weight:700;color:#334155;margin-bottom:0.5rem">No transactions this month</div>
+        <div style="font-size:0.875rem;color:#94a3b8">Start spending (or importing data) to see your Wrapped!</div>
+      </div>
     </div>
   </div>
 </div>
@@ -243,6 +314,173 @@
     0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
     30% { transform: translateY(-10px); opacity: 1; }
   }
+
+  /* Wrapped styles */
+  .wrapped-container {
+    animation: wrappedFadeIn 0.5s ease;
+  }
+  @keyframes wrappedFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .wrapped-card {
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);
+    color: white;
+    min-height: 100%;
+  }
+  .wrapped-header {
+    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+  .wrapped-header-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+  }
+  .wrapped-header-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #ffd700, #ffed4e, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+  .wrapped-header-sub {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 0.25rem;
+  }
+  .wrapped-loading {
+    padding: 3rem 1rem;
+  }
+  .wrapped-total-box {
+    text-align: center;
+    padding: 1.5rem 1rem 2rem;
+  }
+  .wrapped-total-label {
+    font-size: 0.875rem;
+    opacity: 0.7;
+    margin-bottom: 0.25rem;
+  }
+  .wrapped-total-amount {
+    font-size: 3.25rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .wrapped-total-sub {
+    font-size: 0.8rem;
+    opacity: 0.55;
+    margin-top: 0.35rem;
+  }
+  .wrapped-stats-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .wrapped-stat-card {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .wrapped-stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.35rem;
+  }
+  .wrapped-stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    margin-bottom: 0.35rem;
+  }
+  .wrapped-stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    word-break: break-word;
+  }
+  .wrapped-stat-sub {
+    font-size: 0.75rem;
+    opacity: 0.55;
+    margin-top: 0.15rem;
+  }
+  .wrapped-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .wrapped-categories {
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .wrapped-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .wrapped-cat-rank {
+    font-size: 0.75rem;
+    font-weight: 800;
+    opacity: 0.45;
+    width: 1.25rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .wrapped-cat-bar-wrap {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+    height: 2.5rem;
+  }
+  .wrapped-cat-bar {
+    height: 100%;
+    border-radius: 0.5rem;
+    min-width: 2rem;
+    transition: width 0.8s cubic-bezier(.22,1,.36,1);
+  }
+  .wrapped-cat-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .wrapped-cat-pct {
+    font-size: 0.7rem;
+    opacity: 0.7;
+  }
+  .wrapped-footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    letter-spacing: 0.05em;
+  }
 </style>
 
 <script>
@@ -255,14 +493,19 @@
   const clearChatBtn = document.getElementById('clearChat');
   const featureTabs = document.querySelectorAll('.feature-tab');
 
+  const chatContainer = document.getElementById('chatContainer');
+  const wrappedContainer = document.getElementById('wrappedContainer');
+
   // State management
   let conversationHistories = {
     general: [],
     budget: [],
     analytics: [],
-    goals: []
+    goals: [],
+    wrapped: []
   };
   let currentFeature = 'general';
+  let wrappedLoaded = false;
 
   // Get storage key for current feature
   function getStorageKey(feature) {
@@ -456,9 +699,17 @@
       const newFeature = this.dataset.feature;
       currentFeature = newFeature;
 
-      // Load history for this feature
-      loadHistory(newFeature);
-      loadChatUI(newFeature);
+      if (newFeature === 'wrapped') {
+        chatContainer.style.display = 'none';
+        wrappedContainer.style.display = '';
+        if (!wrappedLoaded) loadWrapped();
+      } else {
+        chatContainer.style.display = 'flex';
+        wrappedContainer.style.display = 'none';
+        // Load history for this feature
+        loadHistory(newFeature);
+        loadChatUI(newFeature);
+      }
     });
   });
 
@@ -525,12 +776,105 @@
   });
 
   // Load history for all features on page load
-  ['general', 'budget', 'analytics', 'goals'].forEach(feature => {
+  ['general', 'budget', 'analytics', 'goals', 'wrapped'].forEach(feature => {
     loadHistory(feature);
   });
 
   // Load UI for current feature (general)
   loadChatUI(currentFeature);
+
+  // --- Wrapped logic ---
+  const barColors = [
+    'linear-gradient(90deg,#fbbf24,#f59e0b)',
+    'linear-gradient(90deg,#a78bfa,#7c3aed)',
+    'linear-gradient(90deg,#34d399,#059669)',
+    'linear-gradient(90deg,#f472b6,#db2777)',
+    'linear-gradient(90deg,#60a5fa,#2563eb)',
+    'linear-gradient(90deg,#fb923c,#ea580c)',
+    'linear-gradient(90deg,#4ade80,#16a34a)',
+    'linear-gradient(90deg,#e879f9,#a21caf)',
+    'linear-gradient(90deg,#38bdf8,#0284c7)',
+    'linear-gradient(90deg,#fca5a5,#dc2626)',
+  ];
+
+  async function loadWrapped() {
+    const loading = document.getElementById('wrappedLoading');
+    const content = document.getElementById('wrappedContent');
+    const empty = document.getElementById('wrappedEmpty');
+    loading.style.display = '';
+    content.style.display = 'none';
+    empty.style.display = 'none';
+
+    try {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      const res = await fetch('{% url "agent_wrapped" %}', {
+        headers: { 'X-CSRFToken': csrfToken }
+      });
+      const data = await res.json();
+
+      if (data.error || data.tx_count === 0) {
+        loading.style.display = 'none';
+        empty.style.display = '';
+        return;
+      }
+
+      // Populate totals
+      document.getElementById('wrappedTotal').textContent = '$' + data.total_spending.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      document.getElementById('wrappedTxCount').textContent = `across ${data.tx_count} transaction${data.tx_count === 1 ? '' : 's'} \u00b7 $${data.avg_amount.toFixed(2)} avg`;
+
+      // Biggest purchase
+      if (data.biggest_purchase) {
+        document.getElementById('wrappedBiggest').textContent = '$' + data.biggest_purchase.amount.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('wrappedBiggestMerchant').textContent = data.biggest_purchase.merchant;
+      }
+      // Top merchant
+      if (data.top_merchant) {
+        document.getElementById('wrappedTopMerchant').textContent = data.top_merchant.name;
+        document.getElementById('wrappedTopMerchantTotal').textContent = '$' + data.top_merchant.total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) + ' total';
+      }
+      // Most frequent
+      if (data.freq_merchant) {
+        document.getElementById('wrappedFreqMerchant').textContent = data.freq_merchant.name;
+        document.getElementById('wrappedFreqMerchantCount').textContent = data.freq_merchant.count + ' visit' + (data.freq_merchant.count === 1 ? '' : 's');
+      }
+
+      // Category bars
+      const catContainer = document.getElementById('wrappedCategories');
+      catContainer.innerHTML = '';
+      const maxTotal = data.categories.length ? data.categories[0].total : 1;
+      data.categories.forEach((cat, i) => {
+        const pct = data.total_spending > 0 ? (cat.total / data.total_spending * 100) : 0;
+        const barPct = (cat.total / maxTotal * 100);
+        const row = document.createElement('div');
+        row.className = 'wrapped-cat-row';
+        row.innerHTML = `
+          <span class="wrapped-cat-rank">${i + 1}</span>
+          <div class="wrapped-cat-bar-wrap">
+            <div class="wrapped-cat-bar" style="width:0%;background:${barColors[i % barColors.length]}"></div>
+            <div class="wrapped-cat-info">
+              <span>${escapeHtml(cat.name)}</span>
+              <span>$${cat.total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="wrapped-cat-pct">(${pct.toFixed(1)}%)</span></span>
+            </div>
+          </div>
+        `;
+        catContainer.appendChild(row);
+        // Animate bar width
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            row.querySelector('.wrapped-cat-bar').style.width = barPct + '%';
+          });
+        });
+      });
+
+      loading.style.display = 'none';
+      content.style.display = '';
+      wrappedLoaded = true;
+    } catch (e) {
+      console.error('Wrapped load error:', e);
+      loading.style.display = 'none';
+      empty.style.display = '';
+    }
+  }
 
   // Focus input on load
   chatInput.focus();
