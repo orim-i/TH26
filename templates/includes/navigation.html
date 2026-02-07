@@ -1,16 +1,12 @@
-
 {% load static %}
 
 <header class="new-header">
-    <div class="d-flex align-items-center justify-content-between"> <!-- [Mobile Media Block] start -->
+    <div class="d-flex align-items-center justify-content-between">
+      
       <div class="d-flex align-items-center" style="flex: 1;">
-        <ul class="list-unstyled">
-          <!-- Left side - empty or add menu items if needed -->
-        </ul>
+        <ul class="list-unstyled"></ul>
       </div>
-      <!-- [Mobile Media Block end] -->
 
-      <!-- Center Logo -->
       <div class="d-flex justify-content-center align-items-center" style="flex: 1;">
         <a href="{% url 'dashboard' %}" class="navbar-brand-center">
           <img src="{% static '/img/trove_logo.png' %}"
@@ -19,10 +15,9 @@
         </a>
       </div>
 
-      <!-- Right side icons -->
-      <div class="d-flex align-items-center justify-content-end" style="flex: 1;">
-        <ul class="list-unstyled">
-          <li class="dropdown pc-h-item">
+      <div class="d-flex align-items-center justify-content-end gap-3" style="flex: 1;">
+        
+        <div class="dropdown pc-h-item">
             <a
               class="pc-head-link dropdown-toggle arrow-none me-0"
               data-bs-toggle="dropdown"
@@ -34,95 +29,16 @@
               <i data-feather="bell"></i>
               <span class="badge bg-success pc-h-badge">3</span>
             </a>
-          <div class="d-flex align-items-center">
             <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
-              
               <div class="dropdown-header d-flex align-items-center justify-content-between">
                 <h5 class="m-0">Notifications</h5>
                 <a href="#!" class="btn btn-link btn-sm">Mark all read</a>
               </div>
-              <div class="dropdown-body text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px)">
+              <div class="dropdown-body text-wrap header-notification-scroll position-relative" style="max-height: calc(100vh - 215px); overflow-y: auto;">
                 <p class="text-span">Today</p>
                 <div class="card mb-0">
                   <div class="card-body">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0">
-                        <img class="img-radius avtar rounded-0" src="{% static "assets/images/user/avatar-1.jpg" %}" alt="Generic placeholder image">
-                      </div>
-                      <div class="flex-grow-1 ms-3">
-                        <span class="float-end text-sm text-muted">2 min ago</span>
-                        <h5 class="text-body mb-2">UI/UX Design</h5>
-                        <p class="mb-0"
-                          >Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of
-                          type and scrambled it to make a type</p
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card mb-0">
-                  <div class="card-body">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0">
-                        <img class="img-radius avtar rounded-0" src="{% static "assets/images/user/avatar-2.jpg" %}" alt="Generic placeholder image">
-                      </div>
-                      <div class="flex-grow-1 ms-3">
-                        <span class="float-end text-sm text-muted">1 hour ago</span>
-                        <h5 class="text-body mb-2">Subscription Price Change</h5>
-                        <p class="mb-0">One of your subscriptions has changed prices - SPOTIFY is now $7/month (up $1 from $6/month)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <p class="text-span">Yesterday</p>
-                <div class="card mb-0">
-                  <div class="card-body">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0">
-                        <img class="img-radius avtar rounded-0" src="{% static "assets/images/user/avatar-3.jpg" %}" alt="Generic placeholder image">
-                      </div>
-                      <div class="flex-grow-1 ms-3">
-                        <span class="float-end text-sm text-muted">2 hour ago</span>
-                        <h5 class="text-body mb-2">Forms</h5>
-                        <p class="mb-0"
-                          >Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of
-                          type and scrambled it to make a type</p
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card mb-0">
-                  <div class="card-body">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0">
-                        <img class="img-radius avtar rounded-0" src="{% static "assets/images/user/avatar-4.jpg" %}" alt="Generic placeholder image">
-                      </div>
-                      <div class="flex-grow-1 ms-3">
-                        <span class="float-end text-sm text-muted">12 hour ago</span>
-                        <h5 class="text-body mb-2">Challenge invitation</h5>
-                        <p class="mb-2"><span class="text-dark">Jonny aber</span> invites to join the challenge</p>
-                        <button class="btn btn-sm btn-outline-secondary me-2">Decline</button>
-                        <button class="btn btn-sm btn-primary">Accept</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card mb-0">
-                  <div class="card-body">
-                    <div class="d-flex">
-                      <div class="flex-shrink-0">
-                        <img class="img-radius avtar rounded-0" src="{% static "assets/images/user/avatar-5.jpg" %}" alt="Generic placeholder image">
-                      </div>
-                      <div class="flex-grow-1 ms-3">
-                        <span class="float-end text-sm text-muted">5 hour ago</span>
-                        <h5 class="text-body mb-2">Security</h5>
-                        <p class="mb-0"
-                          >Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of
-                          type and scrambled it to make a type</p
-                        >
-                      </div>
-                    </div>
+                     <p class="mb-0">Notification Example...</p>
                   </div>
                 </div>
               </div>
@@ -130,13 +46,9 @@
                 <a href="#!" class="link-danger">Clear all Notifications</a>
               </div>
             </div>
-          </li>
-        </ul>
-      </div>
+        </div>
 
-      <div class="d-flex align-items-center">
-        <ul class="list-unstyled">
-          <li class="dropdown pc-h-item header-user-profile">
+        <div class="dropdown pc-h-item header-user-profile">
             <a
               class="pc-head-link dropdown-toggle arrow-none me-0"
               data-bs-toggle="dropdown"
@@ -148,7 +60,8 @@
             >
               <i data-feather="user"></i>
             </a>
-            <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-0 overflow-hidden">
+            
+            <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown p-0" style="overflow: visible !important;">
               <div class="dropdown-header d-flex align-items-center justify-content-between bg-primary">
                 <div class="d-flex my-2">
                   <div class="flex-shrink-0">
@@ -160,56 +73,77 @@
                   </div>
                 </div>
               </div>
-              <div class="dropdown-body">
-                <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 225px)">
-                  <a href="#" class="dropdown-item">
-                    <span>
-                      <svg class="pc-icon text-muted me-2">
-                        <use xlink:href="#custom-setting-outline"></use>
-                      </svg>
-                      <span>Settings</span>
-                    </span>
-                  </a>
-                  <a href="#" class="dropdown-item">
-                    <span>
-                      <svg class="pc-icon text-muted me-2">
-                        <use xlink:href="#custom-share-bold"></use>
-                      </svg>
-                      <span>Share</span>
-                    </span>
-                  </a>
-                  <a href="#" class="dropdown-item">
-                    <span>
-                      <svg class="pc-icon text-muted me-2">
-                        <use xlink:href="#custom-lock-outline"></use>
-                      </svg>
-                      <span>Change Password</span>
-                    </span>
-                  </a>
+              
+              <div class="dropdown-body p-2">
+                  
+                  <div class="dropdown-submenu position-relative mb-1">
+                      <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
+                        <span class="d-flex align-items-center">
+                          <i data-feather="settings" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
+                          <span>Settings</span>
+                        </span>
+                        <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
+                      </a>
+
+                      <ul class="dropdown-menu submenu-popout">
+                        <li class="dropdown-header">Account Settings</li>
+                        <li>
+                          <a class="dropdown-item" href="{% url 'password_change' %}">
+                            Change Password
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="#">
+                            Privacy Policy
+                          </a>
+                        </li>
+                      </ul>
+                  </div>
+
+                  <div class="dropdown-submenu position-relative mb-1">
+                      <a href="#" class="dropdown-item submenu-trigger d-flex align-items-center justify-content-between">
+                        <span class="d-flex align-items-center">
+                          <i data-feather="user" class="text-muted me-2" style="width: 18px; height: 18px;"></i>
+                          <span>Personal Information</span>
+                        </span>
+                        <i data-feather="chevron-left" style="width: 14px; height: 14px;"></i>
+                      </a>
+
+                      <ul class="dropdown-menu submenu-popout">
+                        <li class="dropdown-header">Profile Options</li>
+                        <li>
+                          <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changeNameModal">
+                            Change Name
+                          </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#personalInfoModal">
+                            View Full Profile
+                          </a>
+                        </li>
+                      </ul>
+                  </div>
+
+                  <hr class="dropdown-divider">
+
                   <div class="d-grid my-2">
                     {% if request.user.is_authenticated %}
                     <a href="{% url "logout" %}" class="btn btn-primary">
-                      <svg class="pc-icon me-2">
-                        <use xlink:href="#custom-logout-1-outline"></use></svg
-                      >Logout
+                      <i data-feather="log-out" class="me-2" style="width:16px; height:16px;"></i>Logout
                     </a>
                     {% else %}
                     <a href="{% url "login" %}" class="btn btn-primary">
-                      <svg class="pc-icon me-2">
-                        <use xlink:href="#custom-logout-1-outline"></use>
-                      </svg>Login
+                      <i data-feather="log-in" class="me-2" style="width:16px; height:16px;"></i>Login
                     </a>
                     {% endif %}
                   </div>
-                </div>
               </div>
             </div>
-          </li>
-        </ul>
+        </div>
       </div>
     </div>
 
-    <!-- Horizontal Tabs Navigation -->
     <div class="horizontal-tabs-nav">
       <nav class="tabs-container">
         <a href="{% url 'dashboard' %}" class="tab-item">
@@ -240,241 +174,118 @@
     </div>
 
     <style>
-      /* Glass header styling */
+      /* --- Header Styles --- */
       .new-header {
-        background: linear-gradient(180deg,
-          rgba(255, 255, 255, 0.5) 0%,
-          rgba(250, 250, 255, 0.45) 100%
-        );
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(250, 250, 255, 0.45) 100%);
         backdrop-filter: blur(15px) saturate(150%);
         -webkit-backdrop-filter: blur(15px) saturate(150%);
         border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow:
-          0 4px 24px 0 rgba(31, 38, 135, 0.15),
-          inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
       }
-
+      
+      /* --- Tab Styles (Unchanged) --- */
       .horizontal-tabs-nav {
-        background: linear-gradient(135deg,
-          rgba(255, 255, 255, 0.3) 0%,
-          rgba(240, 248, 255, 0.35) 25%,
-          rgba(250, 240, 255, 0.3) 50%,
-          rgba(255, 240, 245, 0.35) 75%,
-          rgba(255, 255, 255, 0.3) 100%
-        );
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(240, 248, 255, 0.35) 25%, rgba(250, 240, 255, 0.3) 50%, rgba(255, 240, 245, 0.35) 75%, rgba(255, 255, 255, 0.3) 100%);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         padding: 0;
-        box-shadow:
-          0 8px 32px 0 rgba(31, 38, 135, 0.2),
-          inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
-          inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
         border-top: 1px solid rgba(255, 255, 255, 0.6);
         border-bottom: 1px solid rgba(255, 255, 255, 0.4);
         position: relative;
       }
-
-      /* Liquid glass shimmer effect */
       .horizontal-tabs-nav::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg,
-          transparent,
-          rgba(255, 255, 255, 0.3),
-          transparent
-        );
+        content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
         animation: shimmer 8s infinite;
       }
+      @keyframes shimmer { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+      .tabs-container { display: flex; justify-content: space-evenly; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0; }
+      .tab-item { flex: 1; text-align: center; padding: 20px 30px; color: rgba(100, 100, 130, 0.9); text-decoration: none; font-size: 18px; font-weight: 600; position: relative; overflow: hidden; transition: all 0.3s ease; border-bottom: 3px solid transparent; z-index: 1; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); }
+      .tab-item:hover:not(.active) { background: rgba(255, 255, 255, 0.4); transform: translateY(-2px); color: rgba(80, 80, 110, 1); }
+      .tab-text { display: inline-block; position: relative; z-index: 2; }
+      .coin-animation { position: absolute; width: 40px; height: 40px; opacity: 0; top: -40px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: -1; }
+      .tab-item:hover:not(.active) .coin-animation { animation: coinFallHover 0.8s ease-in-out; }
+      @keyframes coinFallHover { 0% { opacity: 0; top: -40px; transform: translateX(-50%); } 20% { opacity: 1; } 100% { opacity: 0; top: 48px; transform: translateX(-50%); } }
+      .tab-item.active { background: rgba(255, 255, 255, 0.6); color: rgba(60, 60, 90, 1); }
+      .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ffd700, #ffed4e, #f7dc6f, #ffd700); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); z-index: 2; animation: glow 2s ease-in-out infinite; }
+      @keyframes glow { 0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); } 50% { opacity: 0.9; box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); } }
+      .tab-item.active .coin-animation { opacity: 1; top: 43px; animation: coinFallActive 0.6s ease-out forwards; }
+      @keyframes coinFallActive { 0% { opacity: 0; top: -40px; transform: translateX(-50%); } 30% { opacity: 1; } 100% { opacity: 1; top: 43px; transform: translateX(-50%); } }
+      .tab-item.leaving .coin-animation { animation: coinFallComplete 0.4s ease-in forwards; }
+      @keyframes coinFallComplete { 0% { opacity: 1; top: 43px; transform: translateX(-50%); } 100% { opacity: 0; top: 48px; transform: translateX(-50%); } }
 
-      @keyframes shimmer {
-        0% { left: -100%; }
-        50% { left: 100%; }
-        100% { left: 100%; }
-      }
-
-      .tabs-container {
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0;
-      }
-
-      .tab-item {
-        flex: 1;
-        text-align: center;
-        padding: 20px 30px;
-        color: rgba(100, 100, 130, 0.9);
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 600;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        border-bottom: 3px solid transparent;
-        z-index: 1;
-        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-      }
-
-      .tab-item:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.4);
-        transform: translateY(-2px);
-        color: rgba(80, 80, 110, 1);
-      }
-
-      .tab-text {
-        display: inline-block;
-        position: relative;
-        z-index: 2;
-      }
-
-      .coin-animation {
+      /* --- Submenu Styles --- */
+      .dropdown-submenu .submenu-popout {
+        top: -8px;
+        right: 100%; 
+        margin-right: 2px;
+        display: none;
         position: absolute;
-        width: 40px;
-        height: 40px;
-        opacity: 0;
-        top: -40px;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-        z-index: -1;
+        min-width: 200px;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: .25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        z-index: 1050;
       }
-
-      /* Hover animation - coin falls and disappears */
-      .tab-item:hover:not(.active) .coin-animation {
-        animation: coinFallHover 0.8s ease-in-out;
-      }
-
-      @keyframes coinFallHover {
-        0% {
-          opacity: 0;
-          top: -40px;
-          transform: translateX(-50%);
-        }
-        20% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-          top: 48px;
-          transform: translateX(-50%);
-        }
-      }
-
-      /* Active tab styles */
-      .tab-item.active {
-        background: rgba(255, 255, 255, 0.6);
-        color: rgba(60, 60, 90, 1);
-      }
-
-      /* Iridescent border as pseudo-element to layer above coin */
-      .tab-item.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg,
-          #ffd700,
-          #ffed4e,
-          #f7dc6f,
-          #ffd700
-        );
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        z-index: 2;
-        animation: glow 2s ease-in-out infinite;
-      }
-
-      @keyframes glow {
-        0%, 100% {
-          opacity: 1;
-          box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-        50% {
-          opacity: 0.9;
-          box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
-        }
-      }
-
-      /* Active tab coin - stays at half position */
-      .tab-item.active .coin-animation {
-        opacity: 1;
-        top: 43px;
-        animation: coinFallActive 0.6s ease-out forwards;
-      }
-
-      @keyframes coinFallActive {
-        0% {
-          opacity: 0;
-          top: -40px;
-          transform: translateX(-50%);
-        }
-        30% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 1;
-          top: 43px;
-          transform: translateX(-50%);
-        }
-      }
-
-      /* Leaving active tab - coin finishes falling */
-      .tab-item.leaving .coin-animation {
-        animation: coinFallComplete 0.4s ease-in forwards;
-      }
-
-      @keyframes coinFallComplete {
-        0% {
-          opacity: 1;
-          top: 43px;
-          transform: translateX(-50%);
-        }
-        100% {
-          opacity: 0;
-          top: 48px;
-          transform: translateX(-50%);
-        }
+      .dropdown-submenu.show-submenu .submenu-popout {
+        display: block;
       }
     </style>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // --- Tabs Logic (Unchanged) ---
         const tabs = document.querySelectorAll('.tab-item');
         const currentPath = window.location.pathname;
-
-        // Set initial active tab based on current URL
         tabs.forEach(tab => {
           const tabPath = new URL(tab.href).pathname;
-          if (tabPath === currentPath) {
-            tab.classList.add('active');
-          }
+          if (tabPath === currentPath) { tab.classList.add('active'); }
         });
-
-        // Handle tab clicks
         tabs.forEach(tab => {
           tab.addEventListener('click', function(e) {
-            // Find currently active tab
             const currentActive = document.querySelector('.tab-item.active');
-
             if (currentActive && currentActive !== this) {
-              // Add leaving class to current active tab
               currentActive.classList.add('leaving');
-
-              // Remove active and leaving classes after animation
-              setTimeout(() => {
-                currentActive.classList.remove('active', 'leaving');
-              }, 400);
+              setTimeout(() => { currentActive.classList.remove('active', 'leaving'); }, 400);
             }
-
-            // Don't add active class here - let page navigation handle it
           });
+        });
+
+        // --- Submenu Logic ---
+        const submenuTriggers = document.querySelectorAll('.submenu-trigger');
+        
+        submenuTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const parent = this.closest('.dropdown-submenu');
+                
+                // Close other submenus
+                document.querySelectorAll('.dropdown-submenu.show-submenu').forEach(openMenu => {
+                    if (openMenu !== parent) {
+                        openMenu.classList.remove('show-submenu');
+                    }
+                });
+
+                if (parent) {
+                    parent.classList.toggle('show-submenu');
+                }
+            });
+        });
+
+        // Global click listener to close submenus
+        document.addEventListener('click', function(e) {
+            const isClickInsideSubmenu = e.target.closest('.submenu-popout');
+            const isClickInsideTrigger = e.target.closest('.submenu-trigger');
+            
+            if (!isClickInsideSubmenu && !isClickInsideTrigger) {
+                document.querySelectorAll('.dropdown-submenu.show-submenu').forEach(submenu => {
+                    submenu.classList.remove('show-submenu');
+                });
+            }
         });
       });
     </script>
