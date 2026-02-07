@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -458,6 +459,15 @@ def spending_dashboard(request):
         rows = cur.fetchall()
         transactions = [dict(zip(cols, r)) for r in rows]
 
+    # Pull card names from the cards table for UI mapping (no DB writes)
+    card_names = []
+    with connection.cursor() as cur:
+        try:
+            cur.execute("SELECT card_name FROM cards ORDER BY issuer, card_name")
+            card_names = [r[0] for r in cur.fetchall() if r and r[0]]
+        except Exception:
+            card_names = []
+
     # --- Goals ---
     with connection.cursor() as cur:
         cur.execute("""
@@ -502,14 +512,109 @@ def spending_dashboard(request):
     return render(
         request,
         "wallet/goals.html",
-        {"transactions": transactions, "goals": goals, "budget": budget, "analysis": analysis},
+        {
+            "transactions": transactions,
+            "goals": goals,
+            "budget": budget,
+            "analysis": analysis,
+            "card_names": card_names,
+        },
     )
 
 
 @login_required
 def subscriptions_dashboard(request):
-    subscriptions = Subscription.objects.filter(user=request.user)
-    return render(request, "wallet/subscriptions.html", {"subscriptions": subscriptions})
+    subs_qs = Subscription.objects.filter(user=request.user)
+
+    subscriptions = []
+    if subs_qs.exists():
+        for s in subs_qs:
+            subscriptions.append({
+                "merchant": s.merchant,
+                "amount": float(s.amount),
+                "billing_cycle": s.billing_cycle,
+                "next_payment_date": s.next_payment_date,
+                "last_used_date": None,
+                "usage_score": None,
+                "prev_amount": None,
+                "current_amount": float(s.amount),
+            })
+    else:
+        # Sample data for UI preview
+        subscriptions = [
+            {
+                "merchant": "Spotify",
+                "amount": 13.00,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=6),
+                "last_used_date": date.today() - timedelta(days=4),
+                "usage_score": 72,
+                "prev_amount": 12.00,
+                "current_amount": 13.00,
+            },
+            {
+                "merchant": "Netflix",
+                "amount": 15.49,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=18),
+                "last_used_date": date.today() - timedelta(days=2),
+                "usage_score": 81,
+                "prev_amount": None,
+                "current_amount": 15.49,
+            },
+            {
+                "merchant": "Apple iCloud+",
+                "amount": 2.99,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=24),
+                "last_used_date": date.today() - timedelta(days=15),
+                "usage_score": 35,
+                "prev_amount": None,
+                "current_amount": 2.99,
+            },
+            {
+                "merchant": "Amazon Prime",
+                "amount": 14.99,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=9),
+                "last_used_date": date.today() - timedelta(days=27),
+                "usage_score": 22,
+                "prev_amount": None,
+                "current_amount": 14.99,
+            },
+        ]
+
+    price_alerts = [
+        s for s in subscriptions
+        if s.get("prev_amount") and s.get("current_amount") and s["current_amount"] > s["prev_amount"]
+    ]
+
+    least_used = sorted(
+        [s for s in subscriptions if s.get("usage_score") is not None],
+        key=lambda x: x["usage_score"]
+    )[:3]
+
+    total_monthly = sum(
+        s["amount"] for s in subscriptions
+        if s.get("billing_cycle") == "monthly"
+    )
+
+    next_bill = min(
+        (s["next_payment_date"] for s in subscriptions if s.get("next_payment_date")),
+        default=None
+    )
+
+    return render(
+        request,
+        "wallet/subscriptions.html",
+        {
+            "subscriptions": subscriptions,
+            "price_alerts": price_alerts,
+            "least_used": least_used,
+            "total_monthly": total_monthly,
+            "next_bill": next_bill,
+        },
+    )
 
 
 @login_required
