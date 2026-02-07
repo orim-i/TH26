@@ -120,8 +120,14 @@
    padding: 0;
    z-index: 10;
    position: relative;
+   opacity: 0;
+   pointer-events: none;
  }
 
+ .card-standard:hover .delete-card-btn {
+   opacity: 1;
+   pointer-events: auto;
+ }
 
  .delete-card-btn:hover {
    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -132,6 +138,49 @@
  .delete-card-btn i {
    color: #dc3545;
    font-size: 24px;
+   font-weight: bold;
+ }
+
+ /* List view styles */
+ .list-group-item {
+   position: relative;
+ }
+
+ .list-delete-btn {
+   width: 32px;
+   height: 32px;
+   background: white;
+   border: none;
+   border-radius: 8px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+   transition: all 0.2s ease;
+   padding: 0;
+   position: absolute;
+   right: 10px;
+   top: 50%;
+   transform: translateY(-50%);
+   opacity: 0;
+   pointer-events: none;
+   z-index: 10;
+ }
+
+ .list-group-item:hover .list-delete-btn {
+   opacity: 1;
+   pointer-events: auto;
+ }
+
+ .list-delete-btn:hover {
+   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+   transform: translateY(-50%) scale(1.05);
+ }
+
+ .list-delete-btn i {
+   color: #dc3545;
+   font-size: 20px;
    font-weight: bold;
  }
 </style>
@@ -176,10 +225,18 @@
  <div id="listView" class="list-group mb-4">
    {% if cards %}
      {% for c in cards %}
-       <a href="#{{ c.card_name|slugify }}" class="list-group-item list-group-item-action">
+       <div class="list-group-item list-group-item-action" style="cursor: pointer;" onclick="location.href='#{{ c.card_name|slugify }}'">
          <strong>{{ c.card_name }}</strong>
          <span class="text-muted">({{ c.issuer|default:"—" }})</span>
-       </a>
+
+         <!-- Delete Button -->
+         <form method="POST" action="{% url 'delete_card' c.id %}" style="display: inline;" onclick="event.stopPropagation();">
+           {% csrf_token %}
+           <button type="submit" class="list-delete-btn" onclick="return confirm('Delete this card?')">
+             <i class="fas fa-times"></i>
+           </button>
+         </form>
+       </div>
      {% endfor %}
    {% else %}
      <span class="list-group-item text-muted">No cards yet.</span>
@@ -278,7 +335,7 @@
        </div>
 
        <!-- Delete Button -->
-       <form method="POST" action="{% url 'delete_card' c.id %}" style="position: absolute; bottom: -12px; right: -12px; z-index: 100;">
+       <form method="POST" action="{% url 'delete_card' c.id %}" style="position: absolute; top: -12px; left: -12px; z-index: 100;">
          {% csrf_token %}
          <button type="submit" class="delete-card-btn" onclick="return confirm('Delete this card?')">
            <i class="fas fa-times"></i>

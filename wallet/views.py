@@ -693,50 +693,230 @@ def subscriptions_dashboard(request):
 @login_required
 def agent_dashboard(request):
     """
-    AI Agent chat interface for financial queries
+    AI Agent chat interface for financial queries with conversation history
     """
     if request.method == "POST":
         import json
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '').strip()
+            conversation_history = data.get('history', [])
+            model = data.get('model', 'anthropic/claude-sonnet-4-5-20250929')
+            feature = data.get('feature', 'general')
 
             if not user_message:
                 return JsonResponse({'error': 'No message provided'}, status=400)
 
+            # Feature-specific system prompts
+            feature_prompts = {
+                'general': "You are a helpful financial assistant. Provide clear, actionable advice about spending, budgeting, and financial goals. Keep responses concise and practical.",
+                'budget': "You are a budget planning specialist. Help users create, review, and optimize their budget plans. Focus on practical recommendations based on their spending patterns. Provide specific dollar amounts and actionable steps.",
+                'analytics': """You are an advanced financial data analyst with expertise in spending pattern analysis and statistical insights.
+
+Your capabilities:
+- Analyze transaction data to identify trends, patterns, and anomalies
+- Calculate key metrics: averages, percentages, growth rates, and variances
+- Identify spending spikes, unusual transactions, and category shifts
+- Perform comparative analysis across time periods and categories
+- Provide data-driven recommendations with specific numbers
+
+When analyzing data:
+1. Start with summary statistics and key findings
+2. Calculate relevant percentages and ratios
+3. Identify trends over time (increasing/decreasing patterns)
+4. Highlight outliers and unusual patterns
+5. Compare against typical spending behavior
+6. Provide actionable insights based on the numbers
+
+Use tables, bullet points, and clear numerical comparisons. Always show your calculations and reasoning.""",
+                'goals': "You are a financial goal tracking expert. Help users track their progress toward financial goals, identify obstacles, and suggest strategies to stay on track. Be encouraging and specific about next steps."
+            }
+
+            system_prompt = feature_prompts.get(feature, feature_prompts['general'])
+
             # Get user's financial context
-            transactions = Transaction.objects.filter(user=request.user).order_by('-date')[:50]
+            with connection.cursor() as cur:
+                # Get transaction summary
+                cur.execute("""
+                    SELECT
+                        COUNT(*) as tx_count,
+                        COALESCE(SUM(amount), 0) as total_spending,
+                        COALESCE(AVG(amount), 0) as avg_amount
+                    FROM transactions
+                    WHERE date >= date('now', '-30 days')
+                """)
+                tx_stats = cur.fetchone()
+
+                # Get spending by category
+                cur.execute("""
+                    SELECT c.category, ROUND(SUM(t.amount), 2) as total
+                    FROM transactions t
+                    JOIN transaction_categories c ON t.transaction_id = c.transaction_id
+                    WHERE t.date >= date('now', '-30 days')
+                    GROUP BY c.category
+                    ORDER BY total DESC
+                    LIMIT 5
+                """)
+                top_categories = cur.fetchall()
+
+                # Enhanced analytics data (only for analytics feature)
+                if feature == 'analytics':
+                    # Weekly spending trend (last 4 weeks)
+                    cur.execute("""
+                        SELECT
+                            strftime('%Y-W%W', date) as week,
+                            COUNT(*) as tx_count,
+                            ROUND(SUM(amount), 2) as total
+                        FROM transactions
+                        WHERE date >= date('now', '-28 days')
+                        GROUP BY week
+                        ORDER BY week
+                    """)
+                    weekly_trend = cur.fetchall()
+
+                    # Top merchants
+                    cur.execute("""
+                        SELECT
+                            merchant,
+                            COUNT(*) as tx_count,
+                            ROUND(SUM(amount), 2) as total,
+                            ROUND(AVG(amount), 2) as avg_amount
+                        FROM transactions
+                        WHERE date >= date('now', '-30 days')
+                        GROUP BY merchant
+                        ORDER BY total DESC
+                        LIMIT 10
+                    """)
+                    top_merchants = cur.fetchall()
+
+                    # Spending by category with percentage
+                    cur.execute("""
+                        SELECT
+                            c.category,
+                            COUNT(*) as tx_count,
+                            ROUND(SUM(t.amount), 2) as total,
+                            ROUND(AVG(t.amount), 2) as avg_amount
+                        FROM transactions t
+                        JOIN transaction_categories c ON t.transaction_id = c.transaction_id
+                        WHERE t.date >= date('now', '-30 days')
+                        GROUP BY c.category
+                        ORDER BY total DESC
+                    """)
+                    category_breakdown = cur.fetchall()
+
+                    # Comparison with previous period
+                    cur.execute("""
+                        SELECT
+                            COUNT(*) as tx_count,
+                            COALESCE(SUM(amount), 0) as total_spending
+                        FROM transactions
+                        WHERE date >= date('now', '-60 days')
+                        AND date < date('now', '-30 days')
+                    """)
+                    prev_period_stats = cur.fetchone()
+                else:
+                    weekly_trend = []
+                    top_merchants = []
+                    category_breakdown = []
+                    prev_period_stats = None
+
+            # Get goals from Django ORM
             goals = Goal.objects.filter(user=request.user)
             cards = Card.objects.filter(user=request.user)
 
-            # Build context for the AI
-            context = f"""
-You are a helpful financial assistant. The user has asked: "{user_message}"
+            # Build financial context based on feature
+            if feature == 'analytics':
+                # Enhanced analytics context with detailed data
+                financial_context = f"""
+FINANCIAL DATA ANALYSIS (Last 30 Days)
 
-Here is their financial context:
-- Total transactions (recent 50): {transactions.count()}
-- Active goals: {goals.count()}
-- Credit cards: {cards.count()}
-"""
+=== SUMMARY STATISTICS ===
+• Total Transactions: {tx_stats[0]}
+• Total Spending: ${tx_stats[1]:.2f}
+• Average Transaction: ${tx_stats[2]:.2f}
+• Daily Average: ${tx_stats[1]/30:.2f}"""
 
-            if transactions.exists():
-                total_spending = sum(float(t.amount) for t in transactions)
-                context += f"\n- Recent spending total: ${total_spending:.2f}"
+                # Add previous period comparison
+                if prev_period_stats and prev_period_stats[1] > 0:
+                    change_pct = ((tx_stats[1] - prev_period_stats[1]) / prev_period_stats[1]) * 100
+                    change_indicator = "📈" if change_pct > 0 else "📉"
+                    financial_context += f"\n• vs. Previous 30 Days: {change_indicator} {change_pct:+.1f}% (${tx_stats[1] - prev_period_stats[1]:+.2f})"
 
-            if goals.exists():
-                context += "\n- Goals:\n"
-                for goal in goals:
-                    context += f"  • {goal.category}: ${goal.current_spend:.2f} / ${goal.limit_amount:.2f}\n"
+                # Weekly trend
+                if weekly_trend:
+                    financial_context += "\n\n=== WEEKLY SPENDING TREND ==="
+                    for week, count, total in weekly_trend:
+                        financial_context += f"\n• Week {week}: {count} transactions, ${total} total"
+
+                # Category breakdown with percentages
+                if category_breakdown:
+                    financial_context += "\n\n=== SPENDING BY CATEGORY ==="
+                    total_spending = tx_stats[1]
+                    for cat, count, total, avg in category_breakdown:
+                        pct = (total / total_spending * 100) if total_spending > 0 else 0
+                        financial_context += f"\n• {cat}: ${total} ({pct:.1f}%) - {count} transactions @ ${avg} avg"
+
+                # Top merchants
+                if top_merchants:
+                    financial_context += "\n\n=== TOP MERCHANTS ==="
+                    for merchant, count, total, avg in top_merchants[:5]:
+                        financial_context += f"\n• {merchant}: ${total} total - {count} transactions @ ${avg} avg"
+
+                if goals.exists():
+                    financial_context += "\n\n=== BUDGET GOALS STATUS ==="
+                    for goal in goals:
+                        pct = (goal.current_spend / goal.limit_amount * 100) if goal.limit_amount > 0 else 0
+                        status = "⚠️ OVER BUDGET" if pct > 100 else "✓ On track" if pct < 75 else "⚡ Near limit"
+                        remaining = goal.limit_amount - goal.current_spend
+                        financial_context += f"\n• {goal.category}: ${goal.current_spend:.2f} / ${goal.limit_amount:.2f} ({pct:.0f}%) - {status} (${remaining:.2f} remaining)"
+
+            else:
+                # Standard context for other features
+                financial_context = f"""
+USER'S FINANCIAL DATA (Last 30 days):
+- Transactions: {tx_stats[0]} transactions
+- Total Spending: ${tx_stats[1]:.2f}
+- Average Transaction: ${tx_stats[2]:.2f}
+
+Top Spending Categories:"""
+
+                for cat, total in top_categories:
+                    financial_context += f"\n  • {cat}: ${total}"
+
+                if goals.exists():
+                    financial_context += "\n\nACTIVE GOALS:"
+                    for goal in goals:
+                        pct = (goal.current_spend / goal.limit_amount * 100) if goal.limit_amount > 0 else 0
+                        status = "⚠️ Over" if pct > 100 else "✓ On track" if pct < 75 else "⚡ Near limit"
+                        financial_context += f"\n  • {goal.category}: ${goal.current_spend:.2f} / ${goal.limit_amount:.2f} ({pct:.0f}%) {status}"
+
+            if cards.exists():
+                financial_context += f"\n\nCREDIT CARDS: {cards.count()} cards in wallet"
+
+            # Build message history for Dedalus
+            messages = [{"role": "system", "content": system_prompt}]
+
+            # Add conversation history (keep last 10 messages for context)
+            for msg in conversation_history[-10:]:
+                if msg.get('role') in ['user', 'assistant']:
+                    messages.append({
+                        "role": msg['role'],
+                        "content": msg['content']
+                    })
+
+            # Add current message with financial context
+            messages.append({
+                "role": "user",
+                "content": f"{financial_context}\n\nUser Question: {user_message}"
+            })
 
             # Use Dedalus to generate response
             try:
                 async def get_ai_response():
                     dedalus = AsyncDedalus()
                     response = await dedalus.chat(
-                        messages=[
-                            {"role": "system", "content": "You are a helpful financial assistant. Provide clear, actionable advice about spending, budgeting, and financial goals."},
-                            {"role": "user", "content": f"{context}\n\nPlease help the user with their question."}
-                        ]
+                        messages=messages,
+                        model=model
                     )
                     return response
 
