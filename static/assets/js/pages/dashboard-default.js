@@ -40,10 +40,18 @@
 // [ world-low chart ] end
 
 // [ Widget-line-chart ] start
+var widgetLineSeries = (window.widgetLineSeries && Array.isArray(window.widgetLineSeries))
+    ? window.widgetLineSeries
+    : [10, 60, 45, 72, 45, 86, 30];
+var widgetLineCategories = (window.widgetLineCategories && Array.isArray(window.widgetLineCategories))
+    ? window.widgetLineCategories
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
 var options = {
     chart: {
         type: 'line',
         height: 210,
+        foreColor: '#000',
         zoom: {
             enabled: false
         },
@@ -54,7 +62,11 @@ var options = {
     dataLabels: {
         enabled: false,
     },
-    colors: ["#fff"],
+    colors: ["#000"],
+    stroke: {
+        width: 2,
+        colors: ['#000'],
+    },
     fill: {
         type: 'solid',
     },
@@ -64,10 +76,10 @@ var options = {
         }
     },
     series: [{
-        data: [10, 60, 45, 72, 45, 86]
+        data: widgetLineSeries
     }],
     xaxis: {
-        categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        categories: widgetLineCategories,
         axisBorder: {
             show: false,
         },
@@ -76,7 +88,7 @@ var options = {
         },
         labels: {
             style: {
-                colors: "#fff"
+                colors: "#000"
             }
         },
     },
@@ -112,9 +124,10 @@ var options = {
     },
     markers: {
         size: 5,
-        colors: '#fff',
+        colors: '#000',
         opacity: 0.9,
         strokeWidth: 2,
+        strokeColors: '#000',
         hover: {
             size: 7,
         }
