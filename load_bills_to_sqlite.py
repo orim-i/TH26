@@ -1,5 +1,5 @@
-import json, sqlite3, sys, os, re
-from datetime import date
+import json, sqlite3, sys, os, re, hashlib
+from datetime import date, timedelta
 
 def ensure_schema(cur):
     cur.executescript("""
@@ -147,9 +147,15 @@ SEED_RULES = [
       "payment_channel": "other", "categories": ["Credit Card","Payment"], "amount": 50.00 },
 ]
 
-def _seed_transactions_from_accounts(cur, accounts, seed_on_date=None):
-    if seed_on_date is None:
-        seed_on_date = date.today().isoformat()
+def _seed_date_for_account(acc_id: str, seed_name: str, days_back: int = 14) -> str:
+    base = date.today()
+    key = f"{acc_id}::{seed_name}".encode("utf-8")
+    offset = int(hashlib.md5(key).hexdigest(), 16) % max(1, days_back)
+    return (base - timedelta(days=offset)).isoformat()
+
+def _seed_transactions_from_accounts(cur, accounts, seed_on_date=None, days_back: int = 14):
+    # If a specific seed_on_date is provided, use it; otherwise spread across past N days.
+    fixed_date = seed_on_date
 
     for a in accounts:
         acc_id = a.get("account_id")
@@ -164,11 +170,12 @@ def _seed_transactions_from_accounts(cur, accounts, seed_on_date=None):
                 if cur.fetchone():
                     break
 
+                tx_date = fixed_date or _seed_date_for_account(acc_id, rule["name"], days_back=days_back)
                 cur.execute("""
                   INSERT INTO transactions
                     (transaction_id, account_id, amount, date, name, merchant_name, payment_channel)
                   VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (txid, acc_id, float(rule["amount"]), seed_on_date,
+                """, (txid, acc_id, float(rule["amount"]), tx_date,
                       rule["name"], rule["merchant"], rule["payment_channel"]))
 
                 # categories for this seed
