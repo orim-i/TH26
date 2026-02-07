@@ -16,7 +16,28 @@ import json
 
 def index(request):
   # daily quotes stuff
-  quotes = ["Don't spend more than you earn!", "Save first, spend later.", "Track your expenses daily.", "Invest in your future.", "A penny saved is a penny earned."]
+  quotes = [
+    "Don't spend more than you earn!",
+    "Save first, spend later.",
+    "Track your expenses daily.",
+    "Invest in your future.",
+    "A penny saved is a penny earned.",
+    "Small savings add up faster than you think.",
+    "Spend intentionally, not impulsively.",
+    "Your budget is your freedom plan.",
+    "Automate savings and let discipline do the work.",
+    "Consistency beats intensity when building wealth.",
+    "Prioritize needs, then fund your goals.",
+    "Every dollar has a job.",
+    "Live below your means, not below your joy.",
+    "Pay yourself first, every payday.",
+    "Cut one expense today, invest it tomorrow.",
+    "A clear plan turns money into momentum.",
+    "Wealth grows where attention goes.",
+    "Budgeting is self-care for your future.",
+    "Goals turn spending into progress.",
+    "Financial peace comes from clarity, not luck."
+  ]
   daily_quote = random.choice(quotes)
 
   with connection.cursor() as cur:
