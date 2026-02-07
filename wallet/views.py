@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.db import connection
 from django.db.models import Sum, Count, Q
+from django.http import JsonResponse
 
 from .models import Transaction, Card, Deal, Goal, Subscription
 import markdown2
@@ -509,3 +510,70 @@ def spending_dashboard(request):
 def subscriptions_dashboard(request):
     subscriptions = Subscription.objects.filter(user=request.user)
     return render(request, "wallet/subscriptions.html", {"subscriptions": subscriptions})
+
+
+@login_required
+def agent_dashboard(request):
+    """
+    AI Agent chat interface for financial queries
+    """
+    if request.method == "POST":
+        import json
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').strip()
+
+            if not user_message:
+                return JsonResponse({'error': 'No message provided'}, status=400)
+
+            # Get user's financial context
+            transactions = Transaction.objects.filter(user=request.user).order_by('-date')[:50]
+            goals = Goal.objects.filter(user=request.user)
+            cards = Card.objects.filter(user=request.user)
+
+            # Build context for the AI
+            context = f"""
+You are a helpful financial assistant. The user has asked: "{user_message}"
+
+Here is their financial context:
+- Total transactions (recent 50): {transactions.count()}
+- Active goals: {goals.count()}
+- Credit cards: {cards.count()}
+"""
+
+            if transactions.exists():
+                total_spending = sum(float(t.amount) for t in transactions)
+                context += f"\n- Recent spending total: ${total_spending:.2f}"
+
+            if goals.exists():
+                context += "\n- Goals:\n"
+                for goal in goals:
+                    context += f"  • {goal.category}: ${goal.current_spend:.2f} / ${goal.limit_amount:.2f}\n"
+
+            # Use Dedalus to generate response
+            try:
+                async def get_ai_response():
+                    dedalus = AsyncDedalus()
+                    response = await dedalus.chat(
+                        messages=[
+                            {"role": "system", "content": "You are a helpful financial assistant. Provide clear, actionable advice about spending, budgeting, and financial goals."},
+                            {"role": "user", "content": f"{context}\n\nPlease help the user with their question."}
+                        ]
+                    )
+                    return response
+
+                # Run async function
+                response = asyncio.run(get_ai_response())
+
+                return JsonResponse({'response': response})
+
+            except Exception as e:
+                return JsonResponse({'error': f'AI service error: {str(e)}'}, status=500)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    # GET request - render the chat interface
+    return render(request, "wallet/agent.html")
