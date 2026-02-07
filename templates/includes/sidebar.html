@@ -2,46 +2,9 @@
 <!DOCTYPE html>
 <!-- Sidebar -->
 <nav class="pcoded-navbar">
-  <div class="navbar-brand header-logo">
-    <a href="{% url 'dashboard' %}" class="b-brand">
-      <img src="{% static '/img/trove_logo.png' %}"
-           alt="Trove Logo"
-           style="height:36px; width:auto; display:inline-block; vertical-align:middle; margin:4px 12px;">
-      </a>
-    </div>
-  </div>
     <div class="navbar-content scroll-div">
       <ul class="nav pcoded-inner-navbar">
-        <li class="nav-item">
-          <a href="{% url 'dashboard' %}" class="nav-link">
-            <span class="pcoded-micon"><i class="feather icon-home"></i></span>
-            <span class="pcoded-mtext">Dashboard</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{% url 'cards' %}" class="nav-link">
-            <span class="pcoded-micon"><i class="feather icon-credit-card"></i></span>
-            <span class="pcoded-mtext">My Cards</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{% url 'deals' %}" class="nav-link">
-            <span class="pcoded-micon"><i class="feather icon-tag"></i></span>
-            <span class="pcoded-mtext">Deals</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{% url 'goals' %}" class="nav-link">
-            <span class="pcoded-micon"><i class="feather icon-target"></i></span>
-            <span class="pcoded-mtext">Goals</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{% url 'subscriptions' %}" class="nav-link">
-            <span class="pcoded-micon"><i class="feather icon-repeat"></i></span>
-            <span class="pcoded-mtext">Subscriptions</span>
-          </a>
-        </li>
+        <!-- Navigation moved to horizontal tabs -->
       </ul>
     </div>
   </div>
