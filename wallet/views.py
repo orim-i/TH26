@@ -203,7 +203,7 @@ def delete_card(request, card_id):
             card.delete()
         except Card.DoesNotExist:
             pass # Handle gracefully or show error
-        return redirect('/cards/')
+        return redirect('/wallet/cards/')
     
 @login_required
 def cards_dashboard(request):
@@ -343,7 +343,7 @@ def get_summary(user_id):
 @csrf_exempt
 @login_required
 def spending_dashboard(request):
-     # --- auto-sync Plaid Sandbox into SQLite on each page load ---
+    # --- auto-sync Plaid Sandbox into SQLite on each page load ---
     try:
         base = Path(settings.BASE_DIR)
         json_plaid   = (base / "plaid_latest.json").resolve()
@@ -367,15 +367,14 @@ def spending_dashboard(request):
     except Exception as e:
         print("Plaid sandbox sync skipped:", e)
 
-
     analysis = None
 
     # --- Handle POST ---
     if request.method == "POST":
         if "delete_goal_id" in request.POST:
             delete_goal_id = request.POST.get("delete_goal_id")
-            # ORM Refactor
-            Goal.objects.filter(id=delete_goal_id, user=request.user).delete()
+            with connection.cursor() as cur:
+                cur.execute("DELETE FROM wallet_goal WHERE id = %s", [delete_goal_id])
 
         elif "category" in request.POST:  # add new goal
             category = request.POST.get("category")
@@ -383,15 +382,11 @@ def spending_dashboard(request):
             period_start = request.POST.get("period_start")
             period_end = request.POST.get("period_end")
 
-            # ORM Refactor
-            Goal.objects.create(
-                user=request.user,
-                category=category,
-                limit_amount=limit_amount,
-                current_spend=0,
-                period_start=period_start,
-                period_end=period_end
-            )
+            with connection.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO wallet_goal (user_id, category, limit_amount, current_spend, period_start, period_end)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, [request.user.id, category, limit_amount, 0, period_start, period_end])
 
         elif "analyze_spending" in request.POST:  # AI button
             summary_text = get_summary(request.user.id)
@@ -401,7 +396,6 @@ def spending_dashboard(request):
                 "check progress on goals, and propose a revised budget plan.\n\n"
                 f"{summary_text}"
             )
-            # Use Dedalus to analyze spending
             async def get_analysis():
                 client = AsyncDedalus()
                 runner = DedalusRunner(client)
@@ -412,28 +406,51 @@ def spending_dashboard(request):
                 return response.final_output
 
             resp_text = asyncio.run(get_analysis())
-            # convert Markdown -> HTML
             analysis = markdown2.markdown(resp_text)
 
     # --- Transactions ---
-    # ORM Refactor
-    transactions = Transaction.objects.order_by("-date")[:100]
+    with connection.cursor() as cur:
+        cur.execute("""
+            SELECT id, user_id, card_id, merchant, category, amount, date
+            FROM wallet_transaction
+            ORDER BY date DESC
+            LIMIT 100
+        """)
+        transactions = [
+            {
+                "id": row[0],
+                "user_id": row[1],
+                "card_id": row[2],
+                "merchant": row[3],
+                "category": row[4],
+                "amount": row[5],
+                "date": row[6],
+            }
+            for row in cur.fetchall()
+        ]
 
     # --- Goals ---
-    # ORM Refactor
-    db_goals = Goal.objects.order_by("-period_start")
+    with connection.cursor() as cur:
+        cur.execute("""
+            SELECT id, user_id, category, limit_amount, current_spend, period_start, period_end
+            FROM wallet_goal
+            ORDER BY period_start DESC
+        """)
+        db_goals = cur.fetchall()
 
     goals = []
     for g in db_goals:
-        # Calculate spend using ORM aggregation matching the category and date range
-        current_spend = Transaction.objects.filter(
-            user=request.user,
-            category__icontains=g.category,
-            date__range=(g.period_start, g.period_end)
-        ).aggregate(sum=Sum('amount'))['sum'] or 0
+        goal_id, user_id, category, limit_amount, current_spend, period_start, period_end = g
+        # Calculate spend using raw SQL aggregation matching the category and date range
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT SUM(amount) FROM wallet_transaction
+                WHERE user_id = %s AND category LIKE ? AND date BETWEEN ? AND ?
+            """, [user_id, f"%{category}%", period_start, period_end])
+            spent = cur.fetchone()[0] or 0
 
-        current_spend = float(current_spend)
-        limit_amt = float(g.limit_amount)
+        current_spend = float(spent)
+        limit_amt = float(limit_amount)
         
         pct = (current_spend / limit_amt) * 100 if limit_amt else 0
         if pct >= 75:
@@ -444,11 +461,11 @@ def spending_dashboard(request):
             color = "#22c55e"
 
         goals.append({
-            "id": g.id,
-            "category": g.category,
-            "limit_amount": g.limit_amount,
-            "period_start": g.period_start,
-            "period_end": g.period_end,
+            "id": goal_id,
+            "category": category,
+            "limit_amount": limit_amount,
+            "period_start": period_start,
+            "period_end": period_end,
             "current_spend": current_spend,
             "pct": pct,
             "color": color,
