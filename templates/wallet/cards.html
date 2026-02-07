@@ -1,289 +1,305 @@
 {% extends "layouts/base.html" %}
-
 {% block content %}
 <style>
-  .card-standard {
-    height: 370px;       /* same height for all cards */
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
+ .card-standard {
+   height: 370px;       /* same height for all cards */
+   overflow-y: auto;
+   display: flex;
+   flex-direction: column;
+   position: relative;
+ }
 
-  .card-gold {
-    color: #3a2c00;
-    background: linear-gradient(145deg, #f6e27a 0%, #d8b850 28%, #f8e79c 55%, #c79f2c 78%, #f0d66a 100%);
-    border: 1px solid rgba(168, 122, 0, 0.55);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      inset 0 -2px 8px rgba(120, 80, 0, 0.25),
-      0 12px 28px -14px rgba(0, 0, 0, 0.35);
-  }
 
-  .card-gold::before,
-  .card-silver::before,
-  .card-black::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 14px;
-    background:
-      linear-gradient(120deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.25) 18%, rgba(255,255,255,0) 45%),
-      radial-gradient(120px 60px at 85% 15%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
-    opacity: 0.85;
-    pointer-events: none;
-  }
+ .card-gold {
+   color: #3a2c00;
+   background: linear-gradient(145deg, #f6e27a 0%, #d8b850 28%, #f8e79c 55%, #c79f2c 78%, #f0d66a 100%);
+   border: 1px solid rgba(168, 122, 0, 0.55);
+   box-shadow:
+     inset 0 1px 0 rgba(255, 255, 255, 0.55),
+     inset 0 -2px 8px rgba(120, 80, 0, 0.25),
+     0 12px 28px -14px rgba(0, 0, 0, 0.35);
+ }
+ .card-gold::before,
+ .card-silver::before,
+ .card-black::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   border-radius: 14px;
+   background:
+     linear-gradient(120deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.25) 18%, rgba(255,255,255,0) 45%),
+     radial-gradient(120px 60px at 85% 15%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
+   opacity: 0.85;
+   pointer-events: none;
+ }
 
-  .card-gold::after,
-  .card-silver::after,
-  .card-black::after {
-    content: "";
-    position: absolute;
-    inset: 8px;
-    border-radius: 10px;
-    background:
-      linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
-    mix-blend-mode: screen;
-    pointer-events: none;
-  }
 
-<<<<<<< HEAD
-  .card-gold .card-body,
-  .card-silver .card-body,
-  .card-black .card-body {
-=======
-  .card-gold .card-body {
->>>>>>> 18e66b2 (cool card colors)
-    position: relative;
-    z-index: 1;
-  }
+ .card-gold::after,
+ .card-silver::after,
+ .card-black::after {
+   content: "";
+   position: absolute;
+   inset: 8px;
+   border-radius: 10px;
+   background:
+     linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+   mix-blend-mode: screen;
+   pointer-events: none;
+ }
 
-  .card-silver {
-    color: #1f2937;
-    background:
-      linear-gradient(115deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 35%),
-      radial-gradient(260px 140px at 15% 85%, rgba(255,255,255,0.45), rgba(255,255,255,0) 60%),
-      linear-gradient(160deg, #f7f8fb 0%, #c8d0de 35%, #eef1f6 60%, #9eabbf 85%, #eef1f6 100%);
-    border: 1px solid rgba(120, 130, 150, 0.6);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      inset 0 -2px 8px rgba(80, 90, 110, 0.2),
-      0 12px 28px -14px rgba(0, 0, 0, 0.35);
-  }
 
-  .card-black {
-    color: #f8fafc;
-    background: linear-gradient(145deg, #1f2937 0%, #0f172a 35%, #111827 65%, #0b1020 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      inset 0 -2px 10px rgba(0, 0, 0, 0.45),
-      0 12px 28px -14px rgba(0, 0, 0, 0.6);
-  }
+ .card-gold .card-body,
+ .card-silver .card-body,
+ .card-black .card-body {
+   position: relative;
+   z-index: 1;
+ }
 
-  .card-silver .card-body,
-  .card-black .card-body {
-    position: relative;
-    z-index: 1;
-  }
 
-  .card-black .badge,
-  .card-black .text-muted {
-    color: rgba(248, 250, 252, 0.85) !important;
-  }
+ .card-silver {
+   color: #1f2937;
+   background:
+     linear-gradient(115deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 35%),
+     radial-gradient(260px 140px at 15% 85%, rgba(255,255,255,0.45), rgba(255,255,255,0) 60%),
+     linear-gradient(160deg, #f7f8fb 0%, #c8d0de 35%, #eef1f6 60%, #9eabbf 85%, #eef1f6 100%);
+   border: 1px solid rgba(120, 130, 150, 0.6);
+   box-shadow:
+     inset 0 1px 0 rgba(255, 255, 255, 0.75),
+     inset 0 -2px 8px rgba(80, 90, 110, 0.2),
+     0 12px 28px -14px rgba(0, 0, 0, 0.35);
+ }
 
-  .card-black .badge.bg-light {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.18) !important;
-  }
+
+ .card-black {
+   color: #f8fafc;
+   background: linear-gradient(145deg, #1f2937 0%, #0f172a 35%, #111827 65%, #0b1020 100%);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   box-shadow:
+     inset 0 1px 0 rgba(255, 255, 255, 0.08),
+     inset 0 -2px 10px rgba(0, 0, 0, 0.45),
+     0 12px 28px -14px rgba(0, 0, 0, 0.6);
+ }
+
+
+ .card-silver .card-body,
+ .card-black .card-body {
+   position: relative;
+   z-index: 1;
+ }
+
+
+ .card-black .badge,
+ .card-black .text-muted {
+   color: rgba(248, 250, 252, 0.85) !important;
+ }
+
+
+ .card-black .badge.bg-light {
+   background: rgba(255, 255, 255, 0.12) !important;
+   border-color: rgba(255, 255, 255, 0.18) !important;
+ }
 </style>
 
+
 <div class="container-md px-4 my-5">
-  <!-- Header -->
+ <!-- Header -->
 <div class="d-flex align-items-center justify-content-between mb-4">
-  <div>
-    <h1 class="h3 fw-bold mb-1">My Cards</h1>
-    <div class="text-muted small">
-      Manage your credit cards — see annual fees, bonus categories, and perks.
-    </div>
-  </div>
-    <div class="text-end">
-      <div class="text-uppercase small text-muted">Total Annual Fee</div>
-      <div class="fs-4 fw-semibold">${{ total_fee|floatformat:2 }}</div>
-      <!-- View Toggle -->
-      <div class="mt-2 mb-2">
-        <div class="btn-group btn-group-sm" role="group">
-          <button type="button" class="btn btn-outline-primary active" id="listViewBtn" onclick="switchView('list')">
-            <i class="bi bi-list-ul me-1"></i> List
-          </button>
-          <button type="button" class="btn btn-outline-primary" id="cardViewBtn" onclick="switchView('card')">
-            <i class="bi bi-grid-3x2-gap me-1"></i> Cards
-          </button>
-        </div>
-      </div>
-      <!-- Add Card Button -->
-      <div class="mt-2">
-        <a href="{% url 'add_card' %}" class="btn btn-primary btn-sm">
-          <i class="bi bi-plus-circle me-1"></i> Add Card
-        </a>
-      </div>
-    </div>
-  </div>
+ <div>
+   <h1 class="h3 fw-bold mb-1">My Cards</h1>
+   <div class="text-muted small">
+     Manage your credit cards — see annual fees, bonus categories, and perks.
+   </div>
+ </div>
+   <div class="text-end">
+     <div class="text-uppercase small text-muted">Total Annual Fee</div>
+     <div class="fs-4 fw-semibold">${{ total_fee|floatformat:2 }}</div>
+     <!-- View Toggle -->
+     <div class="mt-2 mb-2">
+       <div class="btn-group btn-group-sm" role="group">
+         <button type="button" class="btn btn-outline-primary active" id="listViewBtn" onclick="switchView('list')">
+           <i class="bi bi-list-ul me-1"></i> List
+         </button>
+         <button type="button" class="btn btn-outline-primary" id="cardViewBtn" onclick="switchView('card')">
+           <i class="bi bi-grid-3x2-gap me-1"></i> Cards
+         </button>
+       </div>
+     </div>
+     <!-- Add Card Button -->
+     <div class="mt-2">
+       <a href="{% url 'add_card' %}" class="btn btn-primary btn-sm">
+         <i class="bi bi-plus-circle me-1"></i> Add Card
+       </a>
+     </div>
+   </div>
+ </div>
 
 
-  <!-- Card List Links -->
-  <div id="listView" class="list-group mb-4">
-    {% if cards %}
-      {% for c in cards %}
-        <a href="#{{ c.card_name|slugify }}" class="list-group-item list-group-item-action">
-          <strong>{{ c.card_name }}</strong>
-          <span class="text-muted">({{ c.issuer|default:"—" }})</span>
-        </a>
-      {% endfor %}
-    {% else %}
-      <span class="list-group-item text-muted">No cards yet.</span>
-    {% endif %}
-  </div>
+ <!-- Card List Links -->
+ <div id="listView" class="list-group mb-4">
+   {% if cards %}
+     {% for c in cards %}
+       <a href="#{{ c.card_name|slugify }}" class="list-group-item list-group-item-action">
+         <strong>{{ c.card_name }}</strong>
+         <span class="text-muted">({{ c.issuer|default:"—" }})</span>
+       </a>
+     {% endfor %}
+   {% else %}
+     <span class="list-group-item text-muted">No cards yet.</span>
+   {% endif %}
+</div>
 
-  <!-- Cards Grid -->
-  <div id="cardView" class="row g-4" style="display: none;">
-    {% for c in cards|dictsort:"annual_fee" %}
-    <div class="col-md-6">
-      <div class="card card-standard card-metal" id="{{ c.card_name|slugify }}" data-card-key="{{ c.id }}-{{ c.card_name|slugify }}" style="border-radius:14px;">
-        <div class="card-body">
-          <!-- Card Header -->
-          <div class="d-flex align-items-start justify-content-between">
-            <div>
-              <h4 class="card-title mb-1">{{ c.card_name }}</h4>
-              <div class="small text-muted">
-                <span class="badge bg-light border text-dark">{{ c.issuer|default:"—" }}</span>
-                {% if c.type %}<span class="badge bg-light border text-dark ms-1">{{ c.type }}</span>{% endif %}
-              </div>
-            </div>
-            <div class="text-end small">
-              <div class="text-uppercase text-muted">Annual Fee</div>
-              <div class="fw-semibold">${{ c.annual_fee|floatformat:0 }}</div>
-              <div class="text-muted">Base: {{ c.base_reward_rate|floatformat:2 }}x</div>
-            </div>
-          </div>
 
-          <!-- Current Period -->
-          {% if c.current_period %}
-          <div class="mt-3 small text-muted">
-            Period: <span class="fw-semibold">{{ c.current_period.start_date }} → {{ c.current_period.end_date }}</span>
-          </div>
-          {% endif %}
+<!-- Cards Grid -->
+<div id="cardView" class="row g-4" style="display: none;">
+  {% for c in cards|dictsort:"annual_fee" %}
+  <div class="col-md-6">
+    <div class="card card-standard card-metal" id="{{ c.card_name|slugify }}" data-card-key="{{ c.id }}-{{ c.card_name|slugify }}" style="border-radius:14px;">
+      <div class="card-body">
+        <!-- Card Header -->
+        <div class="d-flex align-items-start justify-content-between">
+           <div>
+             <h4 class="card-title mb-1">{{ c.card_name }}</h4>
+             <div class="small text-muted">
+               <span class="badge bg-light border text-dark">{{ c.issuer|default:"—" }}</span>
+               {% if c.type %}<span class="badge bg-light border text-dark ms-1">{{ c.type }}</span>{% endif %}
+             </div>
+           </div>
+           <div class="text-end small">
+             <div class="text-uppercase text-muted">Annual Fee</div>
+             <div class="fw-semibold">${{ c.annual_fee|floatformat:0 }}</div>
+             <div class="text-muted">Base: {{ c.base_reward_rate|floatformat:2 }}x</div>
+           </div>
+         </div>
 
-          <!-- Welcome Bonus -->
-          {% if c.welcome_bonus %}
-          <div class="mt-3 p-3 rounded border bg-light">
-            <div class="fw-semibold mb-1">Welcome Offer</div>
-            <div class="small">
-              {% if c.welcome_bonus.points %}<span class="me-2"><b>{{ c.welcome_bonus.points|floatformat:0 }}</b> pts</span>{% endif %}
-              {% if c.welcome_bonus.cash_back %}<span class="me-2"><b>${{ c.welcome_bonus.cash_back|floatformat:0 }}</b> cash</span>{% endif %}
-              {% if c.welcome_bonus.points_or_cash %}<span class="me-2"><b>{{ c.welcome_bonus.points_or_cash|floatformat:0 }}</b> equiv</span>{% endif %}
-              {% if c.welcome_bonus.spend_requirement %}<span class="me-2">after spend <b>${{ c.welcome_bonus.spend_requirement|floatformat:0 }}</b></span>{% endif %}
-              {% if c.welcome_bonus.time_frame_months %}<span>in <b>{{ c.welcome_bonus.time_frame_months }}</b> mo</span>{% endif %}
-            </div>
-          </div>
-          {% endif %}
 
-          <!-- Bonus Categories -->
-          {% if c.bonus_categories %}
-          <div class="mt-3">
-            <div class="fw-semibold mb-2">Bonus Categories</div>
-            <div class="d-flex flex-wrap gap-2">
-              {% for bc in c.bonus_categories %}
-                <span class="badge bg-white border text-dark">
-                  <span class="fw-semibold">{{ bc.category_name }}</span>
-                  {% if bc.reward_rate %}<span class="text-muted"> · {{ bc.reward_rate|floatformat:2 }}x</span>{% endif %}
-                  {% if bc.cap %}<span class="text-muted"> · cap ${{ bc.cap|floatformat:0 }}</span>{% endif %}
-                  {% if bc.note %}<span class="text-muted"> · {{ bc.note }}</span>{% endif %}
-                </span>
-              {% endfor %}
-            </div>
-          </div>
-          {% endif %}
+         <!-- Current Period -->
+         {% if c.current_period %}
+         <div class="mt-3 small text-muted">
+           Period: <span class="fw-semibold">{{ c.current_period.start_date }} → {{ c.current_period.end_date }}</span>
+         </div>
+         {% endif %}
 
-          <!-- Perks -->
-          {% if c.perks %}
-          <div class="mt-3">
-            <div class="fw-semibold mb-2">Perks</div>
-            <ul class="list-unstyled mb-0">
-              {% for p in c.perks %}
-              <li class="d-flex align-items-start mb-1">
-                <span class="me-2 mt-1 rounded-circle" style="width:6px;height:6px;background:#94a3b8;display:inline-block"></span>
-                <div>
-                  <div class="fw-semibold">{{ p.perk_name }}</div>
-                  {% if p.description or p.frequency %}
-                    <div class="small text-muted">
-                      {% if p.description %}{{ p.description }}{% endif %}
-                      {% if p.frequency %}<span class="ms-1">({{ p.frequency }})</span>{% endif %}
-                    </div>
-                  {% endif %}
-                </div>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          {% endif %}
 
-          <!-- Delete Button -->
-          <form method="POST" action="{% url 'delete_card' c.id %}" class="position-absolute bottom-2 end-2">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this card?')">
-              <i class="bi bi-trash"></i>
-            </button>
-          </form>
+         <!-- Welcome Bonus -->
+         {% if c.welcome_bonus %}
+         <div class="mt-3 p-3 rounded border bg-light">
+           <div class="fw-semibold mb-1">Welcome Offer</div>
+           <div class="small">
+             {% if c.welcome_bonus.points %}<span class="me-2"><b>{{ c.welcome_bonus.points|floatformat:0 }}</b> pts</span>{% endif %}
+             {% if c.welcome_bonus.cash_back %}<span class="me-2"><b>${{ c.welcome_bonus.cash_back|floatformat:0 }}</b> cash</span>{% endif %}
+             {% if c.welcome_bonus.points_or_cash %}<span class="me-2"><b>{{ c.welcome_bonus.points_or_cash|floatformat:0 }}</b> equiv</span>{% endif %}
+             {% if c.welcome_bonus.spend_requirement %}<span class="me-2">after spend <b>${{ c.welcome_bonus.spend_requirement|floatformat:0 }}</b></span>{% endif %}
+             {% if c.welcome_bonus.time_frame_months %}<span>in <b>{{ c.welcome_bonus.time_frame_months }}</b> mo</span>{% endif %}
+           </div>
+         </div>
+         {% endif %}
 
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
+
+         <!-- Bonus Categories -->
+         {% if c.bonus_categories %}
+         <div class="mt-3">
+           <div class="fw-semibold mb-2">Bonus Categories</div>
+           <div class="d-flex flex-wrap gap-2">
+             {% for bc in c.bonus_categories %}
+               <span class="badge bg-white border text-dark">
+                 <span class="fw-semibold">{{ bc.category_name }}</span>
+                 {% if bc.reward_rate %}<span class="text-muted"> · {{ bc.reward_rate|floatformat:2 }}x</span>{% endif %}
+                 {% if bc.cap %}<span class="text-muted"> · cap ${{ bc.cap|floatformat:0 }}</span>{% endif %}
+                 {% if bc.note %}<span class="text-muted"> · {{ bc.note }}</span>{% endif %}
+               </span>
+             {% endfor %}
+           </div>
+         </div>
+         {% endif %}
+
+
+         <!-- Perks -->
+         {% if c.perks %}
+         <div class="mt-3">
+           <div class="fw-semibold mb-2">Perks</div>
+           <ul class="list-unstyled mb-0">
+             {% for p in c.perks %}
+             <li class="d-flex align-items-start mb-1">
+               <span class="me-2 mt-1 rounded-circle" style="width:6px;height:6px;background:#94a3b8;display:inline-block"></span>
+               <div>
+                 <div class="fw-semibold">{{ p.perk_name }}</div>
+                 {% if p.description or p.frequency %}
+                   <div class="small text-muted">
+                     {% if p.description %}{{ p.description }}{% endif %}
+                     {% if p.frequency %}<span class="ms-1">({{ p.frequency }})</span>{% endif %}
+                   </div>
+                 {% endif %}
+               </div>
+             </li>
+             {% endfor %}
+           </ul>
+         </div>
+         {% endif %}
+
+
+         <!-- Delete Button -->
+         <form method="POST" action="{% url 'delete_card' c.id %}" class="position-absolute bottom-2 end-2">
+           {% csrf_token %}
+           <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this card?')">
+             <i class="bi bi-trash"></i>
+           </button>
+         </form>
+
+
+       </div>
+     </div>
+   </div>
+   {% endfor %}
+ </div>
+
 
 </div>
 
+
 <!-- View Toggle Script -->
 <script>
-  function switchView(view) {
-    const listView = document.getElementById('listView');
-    const cardView = document.getElementById('cardView');
-    const listBtn = document.getElementById('listViewBtn');
-    const cardBtn = document.getElementById('cardViewBtn');
+ function switchView(view) {
+   const listView = document.getElementById('listView');
+   const cardView = document.getElementById('cardView');
+   const listBtn = document.getElementById('listViewBtn');
+   const cardBtn = document.getElementById('cardViewBtn');
+   if (view === 'list') {
+     listView.style.display = 'block';
+     cardView.style.display = 'none';
+     listBtn.classList.add('active');
+     cardBtn.classList.remove('active');
+   } else {
+     listView.style.display = 'none';
+     cardView.style.display = 'flex';
+     listBtn.classList.remove('active');
+     cardBtn.classList.add('active');
+   }
+ };
 
-    if (view === 'list') {
-      listView.style.display = 'block';
-      cardView.style.display = 'none';
-      listBtn.classList.add('active');
-      cardBtn.classList.remove('active');
-    } else {
-      listView.style.display = 'none';
-      cardView.style.display = 'flex';
-      listBtn.classList.remove('active');
-      cardBtn.classList.add('active');
-    }
-  }
 
-  // Deterministic 1/3 split by card key (stable across reloads)
-  (function applyMetalThemesStable() {
-    const variants = ["card-gold", "card-silver", "card-black"];
-    const cards = document.querySelectorAll(".card-metal");
+ // Deterministic 1/3 split by card key (stable across reloads)
+ (function applyMetalThemesStable() {
+   const variants = ["card-gold", "card-silver", "card-black"];
+   const cards = document.querySelectorAll(".card-metal");
 
-    function hashString(s) {
-      let h = 0;
-      for (let i = 0; i < s.length; i++) {
-        h = ((h << 5) - h) + s.charCodeAt(i);
-        h |= 0; // 32-bit
-      }
-      return Math.abs(h);
-    }
 
-    cards.forEach((el) => {
-      const key = el.getAttribute("data-card-key") || el.id || "";
-      const idx = hashString(key) % variants.length;
-      el.classList.add(variants[idx]);
-    });
-  })();
+   function hashString(s) {
+     let h = 0;
+     for (let i = 0; i < s.length; i++) {
+       h = ((h << 5) - h) + s.charCodeAt(i);
+       h |= 0; // 32-bit
+     }
+     return Math.abs(h);
+   }
+
+
+   cards.forEach((el) => {
+     const key = el.getAttribute("data-card-key") || el.id || "";
+     const idx = hashString(key) % variants.length;
+     el.classList.add(variants[idx]);
+   });
+ })();
 </script>
 {% endblock %}
+
+
