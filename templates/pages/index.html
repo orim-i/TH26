@@ -2,6 +2,26 @@
 
 {% block content %}
 <div class="container-md px-4 my-5">
+  <style>
+    .wrapped-alert {
+      background: #efe7ff;
+      border-color: #d6c2ff;
+      color: #3d1f7a;
+    }
+    .wrapped-alert .text-muted {
+      color: #5a3b91 !important;
+    }
+    .wrapped-alert-btn {
+      background: #7a3ff2;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+    }
+    .wrapped-alert-btn:hover {
+      background: #6a31e6;
+      color: #fff;
+    }
+  </style>
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
@@ -41,6 +61,26 @@
     </div>
   </div>
   -->
+
+  <div class="row mb-4" id="wrappedAlertRow">
+    <div class="col-12">
+      <div
+        class="alert wrapped-alert d-flex align-items-start gap-2 alert-dismissible fade show"
+        id="wrappedAlert"
+        data-alert-signature="wrapped_v1"
+      >
+        <div class="me-1">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">Your piecewise wrapped is here!</div>
+          <div class="small text-muted">Tap to see your highlights and insights.</div>
+        </div>
+        <a class="btn btn-sm wrapped-alert-btn me-2" href="{% url 'agent' %}#wrapped">view now</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
 
   {% if spending_alerts %}
   <div class="row mb-4" id="spendingAlertRow">
@@ -515,6 +555,30 @@ cb.addEventListener('change', renderDeals);
     if (!alertEl) return;
     const signature = alertEl.getAttribute("data-alert-signature") || "";
     const storageKey = "spending_alert_dismissed_signature";
+
+    try {
+      const dismissed = localStorage.getItem(storageKey);
+      if (dismissed && dismissed === signature) {
+        if (alertRow) alertRow.remove();
+        return;
+      }
+    } catch (e) {}
+
+    alertEl.addEventListener("closed.bs.alert", function () {
+      if (alertRow) alertRow.remove();
+      try {
+        localStorage.setItem(storageKey, signature);
+      } catch (e) {}
+    });
+  })();
+</script>
+<script>
+  (function () {
+    const alertEl = document.getElementById("wrappedAlert");
+    const alertRow = document.getElementById("wrappedAlertRow");
+    if (!alertEl) return;
+    const signature = alertEl.getAttribute("data-alert-signature") || "";
+    const storageKey = "wrapped_alert_dismissed_signature";
 
     try {
       const dismissed = localStorage.getItem(storageKey);
