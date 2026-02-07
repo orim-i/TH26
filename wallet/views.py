@@ -532,6 +532,55 @@ def spending_dashboard(request):
 
     budget = sum(float(g["limit_amount"]) for g in goals) if goals else 2000
 
+    # Subscriptions panel data (read-only, no DB writes)
+    subs_qs = Subscription.objects.filter(user=request.user)
+    subscriptions = []
+    if subs_qs.exists():
+        for s in subs_qs:
+            subscriptions.append({
+                "merchant": s.merchant,
+                "amount": float(s.amount),
+                "billing_cycle": s.billing_cycle,
+                "next_payment_date": s.next_payment_date,
+                "last_used_date": None,
+                "usage_score": None,
+                "prev_amount": None,
+                "current_amount": float(s.amount),
+            })
+    else:
+        subscriptions = [
+            {
+                "merchant": "Spotify",
+                "amount": 13.00,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=6),
+                "last_used_date": date.today() - timedelta(days=4),
+                "usage_score": 72,
+                "prev_amount": 12.00,
+                "current_amount": 13.00,
+            },
+            {
+                "merchant": "Netflix",
+                "amount": 15.49,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=18),
+                "last_used_date": date.today() - timedelta(days=2),
+                "usage_score": 81,
+                "prev_amount": None,
+                "current_amount": 15.49,
+            },
+            {
+                "merchant": "Apple iCloud+",
+                "amount": 2.99,
+                "billing_cycle": "monthly",
+                "next_payment_date": date.today() + timedelta(days=24),
+                "last_used_date": date.today() - timedelta(days=15),
+                "usage_score": 35,
+                "prev_amount": None,
+                "current_amount": 2.99,
+            },
+        ]
+
     return render(
         request,
         "wallet/goals.html",
@@ -541,6 +590,7 @@ def spending_dashboard(request):
             "budget": budget,
             "analysis": analysis,
             "card_names": card_names,
+            "subscriptions": subscriptions,
         },
     )
 

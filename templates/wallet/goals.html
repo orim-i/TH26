@@ -64,10 +64,10 @@
     <div id="alerts" class="mt-4 space-y-2"></div>
   </div>
 
-  <!-- Category Goals -->
+  <!-- Spending Limits -->
   <div class="rounded-2xl shadow-md p-6 bg-white/70 backdrop-blur border border-slate-100 mb-8">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold">Spending Goals</h2>
+      <h2 class="text-xl font-semibold">Spending Limits</h2>
       <button id="addGoalBtn" type="button"
               class="px-3 py-2 rounded-xl border border-slate-200 shadow-md"
               style="background:#ffffff">+ Add Goal</button>
@@ -143,26 +143,41 @@
     </ul>
   </div>
 
-  <!-- Recurring Transactions -->
-  <div class="rounded-2xl shadow-md p-6 bg-white/70 backdrop-blur border border-slate-100 mb-8">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold">Recurring Transactions</h2>
-      <div class="text-xs opacity-70">Identified by merchant frequency</div>
+  <!-- Subscriptions (from Subscriptions tab data) -->
+  <a href="{% url 'subscriptions' %}" class="subs-card-link text-reset text-decoration-none">
+    <div class="rounded-2xl shadow-md p-6 bg-white/70 backdrop-blur border border-slate-100 mb-8" style="transition: transform .15s ease, box-shadow .15s ease;">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Subscriptions</h2>
+        <div class="text-xs opacity-70">Linked from your subscriptions list</div>
+      </div>
+      <div class="overflow-hidden rounded-xl border border-slate-200">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="text-left p-3">Merchant</th>
+              <th class="text-left p-3">Cycle</th>
+              <th class="text-left p-3">Next Bill</th>
+              <th class="text-right p-3">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for s in subscriptions %}
+            <tr>
+              <td class="p-3 font-medium">{{ s.merchant }}</td>
+              <td class="p-3 opacity-80">{{ s.billing_cycle|default:"monthly" }}</td>
+              <td class="p-3 opacity-70">{{ s.next_payment_date }}</td>
+              <td class="p-3 text-right font-semibold">${{ s.amount|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="p-3 text-center opacity-70">No subscriptions found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="overflow-hidden rounded-xl border border-slate-200">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="text-left p-3">Merchant</th>
-            <th class="text-left p-3">Category</th>
-            <th class="text-center p-3">Frequency</th>
-            <th class="text-right p-3">Avg. Amount</th>
-          </tr>
-        </thead>
-        <tbody id="recurringBody" class="divide-y divide-slate-100"></tbody>
-      </table>
-    </div>
-  </div>
+  </a>
 
   <!-- Recent Transactions -->
   <div class="rounded-2xl shadow-md p-6 bg-white/70 backdrop-blur border border-slate-100">
@@ -304,6 +319,10 @@
   .tx-modal-kv .label { color: rgba(15,23,42,.6); }
   .tx-row { cursor: pointer; }
   .tx-row:hover { background: rgba(15,23,42,.03); }
+  .subs-card-link:hover > div {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px -18px rgba(0,0,0,.35);
+  }
 </style>
 
 <script>
@@ -473,53 +492,6 @@
     }
   }
 
-  // Identify and render recurring transactions
-  function renderRecurringTransactions(rows){
-    const recurringBody = document.getElementById('recurringBody');
-    if (!recurringBody) return;
-
-    // Group transactions by merchant
-    const merchantGroups = {};
-    rows.forEach(t => {
-      const merchant = t.merchant || 'Unknown';
-      if (!merchantGroups[merchant]) {
-        merchantGroups[merchant] = {
-          merchant: merchant,
-          category: t.category,
-          transactions: [],
-          totalAmount: 0
-        };
-      }
-      merchantGroups[merchant].transactions.push(t);
-      merchantGroups[merchant].totalAmount += parseFloat(t.amount) || 0;
-    });
-
-    // Filter for recurring (appearing 2+ times)
-    const recurring = Object.values(merchantGroups)
-      .filter(g => g.transactions.length >= 2)
-      .sort((a, b) => b.transactions.length - a.transactions.length);
-
-    if (!recurring.length) {
-      recurringBody.innerHTML = '<tr><td colspan="4" class="p-3 text-center opacity-70">No recurring transactions detected</td></tr>';
-      return;
-    }
-
-    recurringBody.innerHTML = recurring.map(r => {
-      const avgAmount = r.totalAmount / r.transactions.length;
-      return `
-        <tr>
-          <td class="p-3 font-medium">${r.merchant}</td>
-          <td class="p-3 opacity-80">${r.category || ''}</td>
-          <td class="p-3 text-center">
-            <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background:#e0e7ff;color:#4f46e5">
-              ${r.transactions.length}x
-            </span>
-          </td>
-          <td class="p-3 text-right font-semibold">$${fmt(avgAmount)}</td>
-        </tr>
-      `;
-    }).join('');
-  }
 
   function sortRows(rows, key, dir){
     const m = dir === 'asc' ? 1 : -1;
@@ -561,7 +533,6 @@
     const sorted = sortRows(withCards, key, dir);
     renderTable(sorted);
     computeStats(sorted);
-    renderRecurringTransactions(withCards); // Use mapped data for recurring analysis
   }
 
   // Toggle Add Goal form
