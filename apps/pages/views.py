@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from apps.pages.models import Product
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
@@ -138,3 +140,14 @@ def sample_page(request):
     'segment': 'sample_page',
   }
   return render(request, 'pages/sample-page.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Log in the user after registration
+            return redirect('/dashboard/')  # Redirect to dashboard
+    else:
+        form = UserCreationForm()
+    return render(request, 'accounts/register.html', {'form': form})

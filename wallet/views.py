@@ -355,6 +355,7 @@ def get_summary():
     return summary_text
 
 @csrf_exempt
+@login_required
 def spending_dashboard(request):
      # --- auto-sync Plaid Sandbox into SQLite on each page load ---
     try:

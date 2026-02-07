@@ -15,16 +15,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth.views import LoginView
 from rest_framework.authtoken.views import obtain_auth_token # <-- NEW
+from apps.pages.views import register
+from wallet.views import dashboard
 
 urlpatterns = [
+    path('', LoginView.as_view(template_name='accounts/login.html'), name='login'),  # Root goes to login
+    path('accounts/login/', LoginView.as_view(template_name='accounts/login.html'), name='login'),
+    path('accounts/register/', register, name='register'),  # Register URL
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('dashboard/', dashboard, name='dashboard'),  # <-- Add this line
+    path('wallet/', include('wallet.urls')),
     path('', include('apps.pages.urls')),
     path("", include("apps.dyn_dt.urls")),
     path("", include("apps.dyn_api.urls")),
     path('charts/', include('apps.charts.urls')),
     path("", include('admin_datta.urls')),
     path("admin/", admin.site.urls),
-    path("", include("wallet.urls")), 
 ]
 
 # Lazy-load on routing is needed
